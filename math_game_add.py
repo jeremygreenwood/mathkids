@@ -14,27 +14,58 @@
 
 from random import randrange
 
-RAND_RANGE=10
+MAX_INT_ADD=10
 
-def rand_get():
-	return randrange( 0, RAND_RANGE )
+#-------------------------------------------------------------------
+# Functions
+#-------------------------------------------------------------------
+def rand_get( maximum ):
+    return randrange( 0, maximum )
     
     
+def user_input_get():
+    while True:
+        try:
+            user_input = int( raw_input( "Enter answer: " ) )
+            return user_input
+        except ValueError:
+            print "Answer not recognized."
+            pass
+
+
+def math_func_add( a, b ):
+    return a + b
+    
+def symbol_add():
+    return "+"
+    
+def maximum_add():
+    return MAX_INT_ADD
+    
+    
+#-------------------------------------------------------------------
+# Main
+#-------------------------------------------------------------------
+# Set functions to use
+maximum   = maximum_add
+math_func = math_func_add
+symbol    = symbol_add
+
+# Continually ask arithmetic problems
 while True:
-	num1 = rand_get()
-	num2 = rand_get()
-	real_answer = num1 + num2
+    num1 = rand_get( maximum() )
+    num2 = rand_get( maximum() )
+    real_answer = math_func( num1, num2 )
     
-	print num1,"+",num2,"= ?"
+    print num1,symbol(),num2,"= ?"
     
-	# Get answer from user
-	# TODO handle invalid number
-	user_answer = int( raw_input( "Enter answer: " ) )
+    # Get answer from user
+    user_answer = user_input_get()
     
-	if user_answer == real_answer:
-		print "Correct, good job!"
-	else:
-		print "That's not right, good try. Here's the answer:"
-		print num1,"+",num2,"=",real_answer
-		
-	print ""
+    if user_answer == real_answer:
+        print "Correct, good job!"
+    else:
+        print "That's not right, good try. Here's the answer:"
+        print num1,symbol(),num2,"=",real_answer
+    
+    print ""
