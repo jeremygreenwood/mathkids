@@ -16,6 +16,18 @@ from random import randrange
 
 MAX_INT_ADD=10
 
+
+#-------------------------------------------------------------------
+# Classes
+#-------------------------------------------------------------------
+class BasicMath:
+    """Basic mathematics class"""
+    def __init__( self, function, symbol, maximum ):
+        self.func = function
+        self.sym = symbol
+        self.max = maximum
+
+
 #-------------------------------------------------------------------
 # Functions
 #-------------------------------------------------------------------
@@ -47,17 +59,15 @@ def maximum_add():
 # Main
 #-------------------------------------------------------------------
 # Set functions to use
-maximum   = maximum_add
-math_func = math_func_add
-symbol    = symbol_add
+math = BasicMath( math_func_add, symbol_add, maximum_add )
 
 # Continually ask arithmetic problems
 while True:
-    num1 = rand_get( maximum() )
-    num2 = rand_get( maximum() )
-    real_answer = math_func( num1, num2 )
+    num1 = rand_get( math.max() )
+    num2 = rand_get( math.max() )
+    real_answer = math.func( num1, num2 )
     
-    print num1,symbol(),num2,"= ?"
+    print num1,math.sym(),num2,"= ?"
     
     # Get answer from user
     user_answer = user_input_get()
@@ -66,6 +76,6 @@ while True:
         print "Correct, good job!"
     else:
         print "That's not right, good try. Here's the answer:"
-        print num1,symbol(),num2,"=",real_answer
+        print num1,math.sym(),num2,"=",real_answer
     
     print ""
