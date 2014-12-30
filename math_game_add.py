@@ -2,7 +2,6 @@
 # TODO create library functions to make the high level parts of the program very easy for kids to read
 # TODO add usage statement
 # TODO add colorizing: green when correct, red when incorrect
-# TODO add functionality for subtraction, multiplication, and division
 # TODO add parameters to only ask questions for add, sub, mult, div, random, or cycle through
 #      perhaps have option to configure for automatic selection based on the day of the week
 # TODO add profiles to keep track of session logs and difficulty settings
@@ -14,7 +13,10 @@
 
 from random import randrange
 
-MAX_INT_ADD=10
+MAX_INT_ADD =      10
+MAX_INT_SUBTRACT = 10
+MAX_INT_MULTIPLY = 10
+MAX_INT_DIVIDE =   10
 
 
 #-------------------------------------------------------------------
@@ -45,29 +47,42 @@ def user_input_get():
             pass
 
 
+# TODO should probably move within basic math class
 def math_func_add( a, b ):
     return a + b
-    
-def symbol_add():
-    return "+"
-    
-def maximum_add():
-    return MAX_INT_ADD
+
+
+def math_func_subtract( a, b ):
+    return a - b
+
+
+def math_func_multiply( a, b ):
+    return a * b
+
+
+def math_func_divide( a, b ):
+    return a / b
     
     
 #-------------------------------------------------------------------
 # Main
 #-------------------------------------------------------------------
-# Set functions to use
-math = BasicMath( math_func_add, symbol_add, maximum_add )
+# Set various operations
+add = BasicMath( math_func_add,      "+", MAX_INT_ADD      )
+sub = BasicMath( math_func_subtract, "-", MAX_INT_SUBTRACT )
+mul = BasicMath( math_func_multiply, "*", MAX_INT_MULTIPLY )
+div = BasicMath( math_func_divide,   "/", MAX_INT_DIVIDE   )
+
+# Set current math operation
+math = add
 
 # Continually ask arithmetic problems
 while True:
-    num1 = rand_get( math.max() )
-    num2 = rand_get( math.max() )
+    num1 = rand_get( math.max )
+    num2 = rand_get( math.max )
     real_answer = math.func( num1, num2 )
     
-    print num1,math.sym(),num2,"= ?"
+    print num1,math.sym,num2,"= ?"
     
     # Get answer from user
     user_answer = user_input_get()
@@ -76,6 +91,6 @@ while True:
         print "Correct, good job!"
     else:
         print "That's not right, good try. Here's the answer:"
-        print num1,math.sym(),num2,"=",real_answer
+        print num1,math.sym,num2,"=",real_answer
     
     print ""
