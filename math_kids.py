@@ -15,21 +15,38 @@
 import random
 from random import randrange
 
-MAX_INT_ADD =      16
+
+# Set configurations
+# TODO read configs from a settings file, and use a default if the settings file DNE
+MAX_INT_ADD      = 16
 MAX_INT_SUBTRACT = 8
 MAX_INT_MULTIPLY = 4
-MAX_INT_DIVIDE =   2
+MAX_INT_DIVIDE   = 2
 
 
 #-------------------------------------------------------------------
 # Classes
 #-------------------------------------------------------------------
-class BasicMath:
-    """Basic mathematics class"""
+class MathType:
+    """Math problem type class, defines a type of math problem and its characteristics."""
     def __init__( self, function, symbol, maximum ):
         self.func = function
         self.sym = symbol
         self.max = maximum
+        
+
+# TODO can/should this be a subclass of MathType
+class BasicMath:
+    """Basic mathematics class, manages list of different types of math problems."""
+    def __init__( self ):
+        self.type = []
+
+    def add( self, problem ):
+        self.type.append( problem )
+
+
+#class MathKids(BasicMath):
+#    """Main class for mathkids game"""
     
 
 #-------------------------------------------------------------------
@@ -72,20 +89,26 @@ def math_func_divide( a, b ):
 #-------------------------------------------------------------------
 # Set various operations
 # TODO can this functionality be pushed into the BasicMath class
-add = BasicMath( math_func_add,      "+", MAX_INT_ADD      )
-sub = BasicMath( math_func_subtract, "-", MAX_INT_SUBTRACT )
-mul = BasicMath( math_func_multiply, "*", MAX_INT_MULTIPLY )
-div = BasicMath( math_func_divide,   "/", MAX_INT_DIVIDE   )
+add = MathType( math_func_add,      "+", MAX_INT_ADD      )
+sub = MathType( math_func_subtract, "-", MAX_INT_SUBTRACT )
+mul = MathType( math_func_multiply, "*", MAX_INT_MULTIPLY )
+div = MathType( math_func_divide,   "/", MAX_INT_DIVIDE   )
 
 # Create a list of math problem types, such that a random problem type may be used
-prob_types = [ add, sub, mul, div ]
+# TODO consider adding "enabled" as a configuration setting and only adding enabled problem types to the list
+#prob_types = [ add, sub, mul, div ]
+math_prob = BasicMath()
+math_prob.add( add )
+math_prob.add( sub )
+math_prob.add( mul )
+math_prob.add( div )
 
 
 # Continually ask arithmetic problems
 while True:
     
     # Set current math operation randomly
-    math = random.choice( prob_types )
+    math = random.choice( math_prob.type )
     
     # Generate random numbers for math problem
     # TODO this may be best to associate with specific problem type (e.g. to avoid decimal numbers for division)
