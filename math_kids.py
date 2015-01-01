@@ -10,6 +10,9 @@
 # TODO add learning functionality:
 #      if a question has been answered correctly many times it should be omitted
 #      if too many questions are omitted then the maximum range value for the type of problem should be increased
+# TODO include configuration to enable negative numbers
+#      this should effect the random number generation for subraction to ensure the answer is non-negative
+#      if enabled, random number generation should be between (-max, max) as opposed to the normal (0, max)
 
 
 import random
@@ -42,27 +45,26 @@ class BasicMath:
     
     problem_list = []
     
+    @staticmethod
     def math_func_add( a, b ):
         return a + b
         
+    @staticmethod
     def math_func_subtract( a, b ):
         return a - b
         
+    @staticmethod
     def math_func_multiply( a, b ):
         return a * b
         
+    @staticmethod
     def math_func_divide( a, b ):
         # TODO avoid divide by zero
         return a / b
 
+    @staticmethod
     def prob_add( problem ):
         BasicMath.problem_list.append( problem )
-        
-    math_func_add = staticmethod( math_func_add )        
-    math_func_subtract = staticmethod( math_func_subtract )        
-    math_func_multiply = staticmethod( math_func_multiply )        
-    math_func_divide = staticmethod( math_func_divide )
-    prob_add = staticmethod( prob_add )
         
     def __init__( self ):
 #        self.problem_list = []
