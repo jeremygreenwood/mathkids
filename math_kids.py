@@ -33,17 +33,61 @@ class MathType:
         self.func = function
         self.sym = symbol
         self.max = maximum
+        self.enabled = False
         
 
 # TODO can/should this be a subclass of MathType
 class BasicMath:
-    """Basic mathematics class, manages list of different types of math problems."""
+    """Basic mathematics class, manages list of different types of math problems."""  
+    
+    problem_list = []
+    
+    def math_func_add( a, b ):
+        return a + b
+        
+    def math_func_subtract( a, b ):
+        return a - b
+        
+    def math_func_multiply( a, b ):
+        return a * b
+        
+    def math_func_divide( a, b ):
+        # TODO avoid divide by zero
+        return a / b
+
+    def prob_add( problem ):
+        BasicMath.problem_list.append( problem )
+        
+    math_func_add = staticmethod( math_func_add )        
+    math_func_subtract = staticmethod( math_func_subtract )        
+    math_func_multiply = staticmethod( math_func_multiply )        
+    math_func_divide = staticmethod( math_func_divide )
+    prob_add = staticmethod( prob_add )
+        
     def __init__( self ):
-        self.type = []
-
-    def add( self, problem ):
-        self.type.append( problem )
-
+#        self.problem_list = []
+        
+        # Set various operations
+        add = MathType( BasicMath.math_func_add,      "+", MAX_INT_ADD      )
+        sub = MathType( BasicMath.math_func_subtract, "-", MAX_INT_SUBTRACT )
+        mul = MathType( BasicMath.math_func_multiply, "*", MAX_INT_MULTIPLY )
+        div = MathType( BasicMath.math_func_divide,   "/", MAX_INT_DIVIDE   )
+        
+        BasicMath.prob_add( add )
+        BasicMath.prob_add( sub )
+        BasicMath.prob_add( mul )
+        BasicMath.prob_add( div )
+        
+    
+#    def gen_prob( self )
+#        """"Generate a math problem""""
+    
+    def prob_type_get( self ):
+        """Returns a random math problem type that is enabled"""
+        # TODO this should cross reference with enabled variable of each MathType
+        return random.choice( BasicMath.problem_list )
+        
+        
 
 #class MathKids(BasicMath):
 #    """Main class for mathkids game"""
@@ -64,51 +108,24 @@ def user_input_get():
         except ValueError:
             print "Answer not recognized."
             pass
-
-
-# TODO should probably move within basic math class
-def math_func_add( a, b ):
-    return a + b
-
-
-def math_func_subtract( a, b ):
-    return a - b
-
-
-def math_func_multiply( a, b ):
-    return a * b
-
-
-def math_func_divide( a, b ):
-    # TODO avoid divide by zero
-    return a / b
     
     
 #-------------------------------------------------------------------
 # Main
 #-------------------------------------------------------------------
-# Set various operations
-# TODO can this functionality be pushed into the BasicMath class
-add = MathType( math_func_add,      "+", MAX_INT_ADD      )
-sub = MathType( math_func_subtract, "-", MAX_INT_SUBTRACT )
-mul = MathType( math_func_multiply, "*", MAX_INT_MULTIPLY )
-div = MathType( math_func_divide,   "/", MAX_INT_DIVIDE   )
+
 
 # Create a list of math problem types, such that a random problem type may be used
 # TODO consider adding "enabled" as a configuration setting and only adding enabled problem types to the list
 #prob_types = [ add, sub, mul, div ]
-math_prob = BasicMath()
-math_prob.add( add )
-math_prob.add( sub )
-math_prob.add( mul )
-math_prob.add( div )
+basic_math = BasicMath()
 
 
 # Continually ask arithmetic problems
 while True:
     
     # Set current math operation randomly
-    math = random.choice( math_prob.type )
+    math = basic_math.prob_type_get()
     
     # Generate random numbers for math problem
     # TODO this may be best to associate with specific problem type (e.g. to avoid decimal numbers for division)
@@ -136,3 +153,4 @@ while True:
         print num1,math.sym,num2,"=",real_answer
     
     print "---------------------------------------------------"
+    
