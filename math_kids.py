@@ -44,24 +44,28 @@ MAX_INT_DIVIDE   = 2
 #-------------------------------------------------------------------
 # Classes
 #-------------------------------------------------------------------
-class bcolors:
+class color:
     RED    = '\033[31m'
     GREEN  = '\033[32m'
     YELLOW = '\033[33m'
     BLUE   = '\033[34m'
     OFF    = '\033[0m'
     
-def green( text ):
-    return bcolors.GREEN + text + bcolors.OFF
-    
-def red( text ):
-    return bcolors.RED + text + bcolors.OFF
-    
-def yellow( text ):
-    return bcolors.YELLOW + text + bcolors.OFF
-    
-def blue( text ):
-    return bcolors.BLUE + text + bcolors.OFF
+    @staticmethod
+    def green( text ):
+        return color.GREEN + text + color.OFF
+        
+    @staticmethod
+    def red( text ):
+        return color.RED + text + color.OFF
+        
+    @staticmethod
+    def yellow( text ):
+        return color.YELLOW + text + color.OFF
+        
+    @staticmethod
+    def blue( text ):
+        return color.BLUE + text + color.OFF
 
     
 class MathType:
@@ -155,14 +159,14 @@ def user_input_get():
             
             # Check if the user wants to quit
             if user_input_str == "q" or user_input_str == "quit":
-                print blue( "Exiting the program..." )
+                print color.blue( "Exiting the program..." )
                 quit()
                 
             return int( user_input_str )
         except ValueError:
             
             # Failed to get an integer from the user input, print a message and try again
-            print yellow( "Answer not recognized." )
+            print color.yellow( "Answer not recognized." )
             pass
     
     
@@ -197,9 +201,9 @@ while True:
     # Print whether they got the math problem correct, and colorize accordingly
     # TODO disable colorization if OS is windows and colorama is not installed 
     if user_answer == basic_math.answer:
-        print green( "Correct" )
+        print color.green( "Correct" )
     else:
-        print red( "Not correct" )
+        print color.red( "Not correct" )
         
     print "---------------------------------------------------"
     
