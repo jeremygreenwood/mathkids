@@ -28,13 +28,26 @@
 #       * hint command to convert the math problem into a word problem for kids to conceptualize
 
 
+import platform
 import random
 from random import randrange
-try:
-   import colorama
-   colorama.init()
-except:
-   pass
+
+
+# Try to import colorama for ANSI color if running windows
+color_enable = True
+if platform.system() == "Windows":
+    print "detected windows"
+#    try:
+#        import colorama
+#        colorama.init()
+#    except:
+#        # Disable color for windows without colorama
+#        print "disabling color"
+#        color_enable = False
+#        pass
+else:
+    print "detected non-windows"
+
 
 # Set configurations
 # TODO determine if running a windows machine without ANSI colors, if so disable colorization
@@ -49,6 +62,19 @@ MAX_INT_DIVIDE   = 2
 #-------------------------------------------------------------------
 # Constants
 #-------------------------------------------------------------------
+#if color_enable == True:
+#    RED    = '\033[31m'
+#    GREEN  = '\033[32m'
+#    YELLOW = '\033[33m'
+#    BLUE   = '\033[34m'
+#    OFF    = '\033[0m'
+#else:
+#    RED    = ''
+#    GREEN  = ''
+#    YELLOW = ''
+#    BLUE   = ''
+#    OFF    = ''
+
 RED    = '\033[31m'
 GREEN  = '\033[32m'
 YELLOW = '\033[33m'
