@@ -1,4 +1,13 @@
 #!/usr/bin/python
+#
+# Notes:
+#   To enable colored output on windows:
+#       1. Download colorama from https://pypi.python.org/packages/source/c/colorama/colorama-0.3.2.zip#md5=179cc70c4a61901ffd052576b598f11e
+#       2. Extract the downloaded zip file.
+#       3. Run the following commands in a windows terminal to install colorama:
+#           python setup.py build
+#           python setup.py install
+#
 # TODO create library functions to make the high level parts of the program very easy for kids to read
 # TODO add usage statement
 # TODO add colorizing: green when correct, red when incorrect
@@ -17,6 +26,11 @@
 
 import random
 from random import randrange
+try:
+   import colorama
+   colorama.init()
+except:
+   pass
 
 
 # Set configurations
@@ -30,6 +44,26 @@ MAX_INT_DIVIDE   = 2
 #-------------------------------------------------------------------
 # Classes
 #-------------------------------------------------------------------
+class bcolors:
+    RED    = '\033[31m'
+    GREEN  = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE   = '\033[34m'
+    OFF    = '\033[0m'
+    
+def green( text ):
+    return bcolors.GREEN + text + bcolors.OFF
+    
+def red( text ):
+    return bcolors.RED + text + bcolors.OFF
+    
+def yellow( text ):
+    return bcolors.YELLOW + text + bcolors.OFF
+    
+def blue( text ):
+    return bcolors.BLUE + text + bcolors.OFF
+
+    
 class MathType:
     """Math problem type class, defines a type of math problem and its characteristics."""
     def __init__( self, function, symbol, maximum ):
@@ -114,15 +148,21 @@ class BasicMath:
 #-------------------------------------------------------------------
 # Functions
 #-------------------------------------------------------------------
-    
-    
 def user_input_get():
     while True:
         try:
-            user_input = int( raw_input( "Enter answer: " ) )
-            return user_input
+            user_input_str = raw_input( "Enter answer: " )
+            
+            # Check if the user wants to quit
+            if user_input_str == "q" or user_input_str == "quit":
+                print blue( "Exiting the program..." )
+                quit()
+                
+            return int( user_input_str )
         except ValueError:
-            print "Answer not recognized."
+            
+            # Failed to get an integer from the user input, print a message and try again
+            print yellow( "Answer not recognized." )
             pass
     
     
@@ -151,12 +191,15 @@ while True:
     # Get answer from user
     user_answer = user_input_get()
     
-    # Print whether they got the math problem correct, and supply the answer if incorrect
-    if user_answer == basic_math.answer:
-        print "Correct"
-    else:
-        print "Not correct"
-        
+    # Print the calculated answer
     print "Answer: " + str( basic_math.answer )
+        
+    # Print whether they got the math problem correct, and colorize accordingly
+    # TODO disable colorization if OS is windows and colorama is not installed 
+    if user_answer == basic_math.answer:
+        print green( "Correct" )
+    else:
+        print red( "Not correct" )
+        
     print "---------------------------------------------------"
     
