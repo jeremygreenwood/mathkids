@@ -1,7 +1,15 @@
 #!/usr/bin/python
+#
+# Notes:
+#   To enable colored output on windows:
+#       1. Download colorama from https://pypi.python.org/packages/source/c/colorama/colorama-0.3.2.zip#md5=179cc70c4a61901ffd052576b598f11e
+#       2. Extract the downloaded zip file.
+#       3. Run the following commands in a windows terminal to install colorama:
+#           python setup.py build
+#           python setup.py install
+#
 # TODO create library functions to make the high level parts of the program very easy for kids to read
 # TODO add usage statement
-# TODO add colorizing: green when correct, red when incorrect
 # TODO add parameters to only ask questions for add, sub, mult, div, random, or cycle through
 #      perhaps have option to configure for automatic selection based on the day of the week
 # TODO add profiles to keep track of session logs and difficulty settings
@@ -13,10 +21,29 @@
 # TODO include configuration to enable negative numbers
 #      this should effect the random number generation for subraction to ensure the answer is non-negative
 #      if enabled, random number generation should be between (-max, max) as opposed to the normal (0, max)
+# TODO add commands:
+#       - should make the command or the first letter of the command active to run the command
+#       * help command to display a list of available commands and what they do
+#       * hint command to convert the math problem into a word problem for kids to conceptualize
 
 
+import platform
 import random
 from random import randrange
+
+# Try to import colorama for ANSI color if running Windows
+color_enable = True
+if platform.system() == "Windows":
+    try:
+        import colorama
+        # Initialize colorama without stripping ANSI codes to resolve issue when running in spyder console
+        # also see https://code.google.com/p/spyderlib/issues/detail?id=1917
+        colorama.init( strip = False )
+    except:
+        # Disable color for windows without colorama
+        print "Disabling color (colorama python module is required for Windows platforms)"
+        color_enable = False
+        pass
 
 
 # Set configurations
@@ -25,6 +52,23 @@ MAX_INT_ADD      = 16
 MAX_INT_SUBTRACT = 8
 MAX_INT_MULTIPLY = 4
 MAX_INT_DIVIDE   = 2
+
+
+#-------------------------------------------------------------------
+# Constants
+#-------------------------------------------------------------------
+if color_enable == True:
+    RED    = '\033[31m'
+    GREEN  = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE   = '\033[36m'
+    OFF    = '\033[0m'
+else:
+    RED    = ''
+    GREEN  = ''
+    YELLOW = ''
+    BLUE   = ''
+    OFF    = ''
 
 
 #-------------------------------------------------------------------
@@ -114,15 +158,38 @@ class BasicMath:
 #-------------------------------------------------------------------
 # Functions
 #-------------------------------------------------------------------
+def green( text ):
+    return GREEN + text + OFF
     
+
+def red( text ):
+    return RED + text + OFF
     
+
+def yellow( text ):
+    return YELLOW + text + OFF
+    
+
+def blue( text ):
+    return BLUE + text + OFF
+    
+
 def user_input_get():
     while True:
         try:
-            user_input = int( raw_input( "Enter answer: " ) )
-            return user_input
+            user_input_str = raw_input( "Enter answer: " )
+            
+            # Check if the user wants to quit
+            # TODO process available commands here
+            if user_input_str == "quit":
+                print blue( "Exiting the program..." )
+                quit()
+                
+            return int( user_input_str )
         except ValueError:
-            print "Answer not recognized."
+            
+            # Failed to get an integer from the user input, print a message and try again
+            print yellow( "Answer not recognized." )
             pass
     
     
@@ -151,12 +218,14 @@ while True:
     # Get answer from user
     user_answer = user_input_get()
     
-    # Print whether they got the math problem correct, and supply the answer if incorrect
-    if user_answer == basic_math.answer:
-        print "Correct"
-    else:
-        print "Not correct"
-        
+    # Print the calculated answer
     print "Answer: " + str( basic_math.answer )
+        
+    # Print whether they got the math problem correct, and colorize accordingly
+    if user_answer == basic_math.answer:
+        print green( "Correct" )
+    else:
+        print red( "Not correct" )
+        
     print "---------------------------------------------------"
     
