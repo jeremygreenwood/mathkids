@@ -22,6 +22,10 @@
 # TODO include configuration to enable negative numbers
 #      this should effect the random number generation for subraction to ensure the answer is non-negative
 #      if enabled, random number generation should be between (-max, max) as opposed to the normal (0, max)
+# TODO add commands:
+#       - should make the command or the first letter of the command active to run the command
+#       * help command to display a list of available commands and what they do
+#       * hint command to convert the math problem into a word problem for kids to conceptualize
 
 
 import random
@@ -32,8 +36,9 @@ try:
 except:
    pass
 
-
 # Set configurations
+# TODO determine if running a windows machine without ANSI colors, if so disable colorization
+
 # TODO read configs from a settings file, and use a default if the settings file DNE
 MAX_INT_ADD      = 16
 MAX_INT_SUBTRACT = 8
@@ -42,32 +47,18 @@ MAX_INT_DIVIDE   = 2
 
 
 #-------------------------------------------------------------------
+# Constants
+#-------------------------------------------------------------------
+RED    = '\033[31m'
+GREEN  = '\033[32m'
+YELLOW = '\033[33m'
+BLUE   = '\033[34m'
+OFF    = '\033[0m'
+
+
+#-------------------------------------------------------------------
 # Classes
 #-------------------------------------------------------------------
-class color:
-    RED    = '\033[31m'
-    GREEN  = '\033[32m'
-    YELLOW = '\033[33m'
-    BLUE   = '\033[34m'
-    OFF    = '\033[0m'
-    
-    @staticmethod
-    def green( text ):
-        return color.GREEN + text + color.OFF
-        
-    @staticmethod
-    def red( text ):
-        return color.RED + text + color.OFF
-        
-    @staticmethod
-    def yellow( text ):
-        return color.YELLOW + text + color.OFF
-        
-    @staticmethod
-    def blue( text ):
-        return color.BLUE + text + color.OFF
-
-    
 class MathType:
     """Math problem type class, defines a type of math problem and its characteristics."""
     def __init__( self, function, symbol, maximum ):
@@ -152,21 +143,38 @@ class BasicMath:
 #-------------------------------------------------------------------
 # Functions
 #-------------------------------------------------------------------
+def green( text ):
+    return GREEN + text + OFF
+    
+
+def red( text ):
+    return RED + text + OFF
+    
+
+def yellow( text ):
+    return YELLOW + text + OFF
+    
+
+def blue( text ):
+    return BLUE + text + OFF
+    
+
 def user_input_get():
     while True:
         try:
             user_input_str = raw_input( "Enter answer: " )
             
             # Check if the user wants to quit
-            if user_input_str == "q" or user_input_str == "quit":
-                print color.blue( "Exiting the program..." )
+            # TODO process available commands here
+            if user_input_str == "quit":
+                print blue( "Exiting the program..." )
                 quit()
                 
             return int( user_input_str )
         except ValueError:
             
             # Failed to get an integer from the user input, print a message and try again
-            print color.yellow( "Answer not recognized." )
+            print yellow( "Answer not recognized." )
             pass
     
     
@@ -201,9 +209,9 @@ while True:
     # Print whether they got the math problem correct, and colorize accordingly
     # TODO disable colorization if OS is windows and colorama is not installed 
     if user_answer == basic_math.answer:
-        print color.green( "Correct" )
+        print green( "Correct" )
     else:
-        print color.red( "Not correct" )
+        print red( "Not correct" )
         
     print "---------------------------------------------------"
     
