@@ -41,9 +41,7 @@ class MathType:
 
 # TODO can/should this be a subclass of MathType
 class BasicMath:
-    """Basic mathematics class, manages list of different types of math problems."""  
-    
-    problem_list = []
+    """Basic mathematics class, manages list of different types of math problems."""
 
     @staticmethod
     def rand_get( maximum ):
@@ -66,12 +64,11 @@ class BasicMath:
         # TODO avoid divide by zero
         return a / b
 
-    @staticmethod
-    def prob_add( problem ):
-        BasicMath.problem_list.append( problem )
+    def prob_add( self, problem ):
+        self.problem_list.append( problem )
         
     def __init__( self ):
-#        self.problem_list = []
+        self.problem_list = []
         
         # Set various operations
         add = MathType( BasicMath.math_func_add,      "+", MAX_INT_ADD      )
@@ -79,10 +76,10 @@ class BasicMath:
         mul = MathType( BasicMath.math_func_multiply, "*", MAX_INT_MULTIPLY )
         div = MathType( BasicMath.math_func_divide,   "/", MAX_INT_DIVIDE   )
         
-        BasicMath.prob_add( add )
-        BasicMath.prob_add( sub )
-        BasicMath.prob_add( mul )
-        BasicMath.prob_add( div )
+        self.prob_add( add )
+        self.prob_add( sub )
+        self.prob_add( mul )
+        self.prob_add( div )
         
     
     def prob_gen( self, prob_type ):
@@ -106,8 +103,8 @@ class BasicMath:
         
     def prob_type_get( self ):
         """Returns a random math problem type that is enabled"""
-        # TODO this should cross reference with enabled variable of each MathType
-        return random.choice( BasicMath.problem_list )
+        # TODO this should cross reference with enabled variable of each MathType (unless problem list is changed to only contain enabled problems)
+        return random.choice( self.problem_list )
         
     def question_str_get( self ):
         return self.question_str
