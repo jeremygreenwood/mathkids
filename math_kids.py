@@ -34,6 +34,7 @@ from random import randrange
 
 
 # Try to import colorama for ANSI color if running windows
+# NOTE color verified working on Linux Mint 17 Konsole session
 color_enable = True
 if platform.system() == "Windows":
     print "detected windows"
