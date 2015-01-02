@@ -44,6 +44,10 @@ class BasicMath:
     """Basic mathematics class, manages list of different types of math problems."""  
     
     problem_list = []
+
+    @staticmethod
+    def rand_get( maximum ):
+        return randrange( 0, maximum )
     
     @staticmethod
     def math_func_add( a, b ):
@@ -81,13 +85,38 @@ class BasicMath:
         BasicMath.prob_add( div )
         
     
-#    def gen_prob( self )
-#        """"Generate a math problem""""
-    
+    def prob_gen( self, prob_type ):
+        #""""Generate a math problem""""
+        # Generate random numbers for math problem
+        # TODO this may be best to associate with specific problem type (e.g. to avoid decimal numbers for division)
+        self.num1 = BasicMath.rand_get( prob_type.max )
+        self.num2 = BasicMath.rand_get( prob_type.max )
+        
+        # Compute the answer, avoiding divide by zeros    
+        # TODO remove once addressed by using problem specific random integer values which will not have a denominator of zero
+        try:
+            self.answer = prob_type.func( self.num1, self.num2 )
+        except ZeroDivisionError:
+            # TODO remove
+            self.answer = 0
+            
+        self.question_str = str( self.num1 ) + " " + problem.sym + " " + str( self.num2 ) + " = ?"
+        self.answer_str   = str( self.num1 ) + " " + problem.sym + " " + str( self.num2 ) + " = " + str( self.answer )
+            
+        
     def prob_type_get( self ):
         """Returns a random math problem type that is enabled"""
         # TODO this should cross reference with enabled variable of each MathType
         return random.choice( BasicMath.problem_list )
+        
+    def question_str_get( self ):
+        return self.question_str
+        
+    def answer_int_get( self ):
+        return self.answer
+        
+    def answer_str_get( self ):
+        return self.answer_str
         
         
 
@@ -98,8 +127,6 @@ class BasicMath:
 #-------------------------------------------------------------------
 # Functions
 #-------------------------------------------------------------------
-def rand_get( maximum ):
-    return randrange( 0, maximum )
     
     
 def user_input_get():
@@ -115,11 +142,10 @@ def user_input_get():
 #-------------------------------------------------------------------
 # Main
 #-------------------------------------------------------------------
-
+# TODO create a __main__ function
 
 # Create a list of math problem types, such that a random problem type may be used
 # TODO consider adding "enabled" as a configuration setting and only adding enabled problem types to the list
-#prob_types = [ add, sub, mul, div ]
 basic_math = BasicMath()
 
 
@@ -127,32 +153,23 @@ basic_math = BasicMath()
 while True:
     
     # Set current math operation randomly
-    math = basic_math.prob_type_get()
+    problem = basic_math.prob_type_get()
     
-    # Generate random numbers for math problem
-    # TODO this may be best to associate with specific problem type (e.g. to avoid decimal numbers for division)
-    num1 = rand_get( math.max )
-    num2 = rand_get( math.max )
-    
-    # Compute the answer, avoiding divide by zeros    
-    # TODO remove once addressed by using problem specific random integer values which will not have a denominator of zero
-    try:
-        real_answer = math.func( num1, num2 )
-    except ZeroDivisionError:
-        continue
+    # Generate a math problem for the type of problem which was chosen randomly in the previous statement
+    basic_math.prob_gen( problem )
     
     # Print the math problem as a question
-    print num1,math.sym,num2,"= ?"
+    print basic_math.question_str_get()
     
     # Get answer from user
     user_answer = user_input_get()
     
     # Print whether they got the math problem correct, and supply the answer if incorrect
-    if user_answer == real_answer:
+    if user_answer == basic_math.answer_int_get():
         print "Correct, good job!"
     else:
         print "That's not right, good try. Here's the answer:"
-        print num1,math.sym,num2,"=",real_answer
+        print basic_math.answer_str_get()
     
     print "---------------------------------------------------"
     
