@@ -106,16 +106,6 @@ class BasicMath:
         # TODO this should cross reference with enabled variable of each MathType (unless problem list is changed to only contain enabled problems)
         return random.choice( self.problem_list )
         
-    def question_str_get( self ):
-        return self.question_str
-        
-    def answer_int_get( self ):
-        return self.answer
-        
-    def answer_str_get( self ):
-        return self.answer_str
-        
-        
 
 #class MathKids(BasicMath):
 #    """Main class for mathkids game"""
@@ -156,17 +146,17 @@ while True:
     basic_math.prob_gen( problem )
     
     # Print the math problem as a question
-    print basic_math.question_str_get()
+    print basic_math.question_str
     
     # Get answer from user
     user_answer = user_input_get()
     
     # Print whether they got the math problem correct, and supply the answer if incorrect
-    if user_answer == basic_math.answer_int_get():
-        print "Correct, good job!"
+    if user_answer == basic_math.answer:
+        print "Correct"
     else:
-        print "That's not right, good try. Here's the answer:"
-        print basic_math.answer_str_get()
-    
+        print "Not correct"
+        
+    print "Answer: " + str( basic_math.answer )
     print "---------------------------------------------------"
     
