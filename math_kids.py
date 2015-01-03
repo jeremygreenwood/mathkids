@@ -10,7 +10,6 @@
 #
 # TODO create library functions to make the high level parts of the program very easy for kids to read
 # TODO add usage statement
-# TODO add colorizing: green when correct, red when incorrect
 # TODO add parameters to only ask questions for add, sub, mult, div, random, or cycle through
 #      perhaps have option to configure for automatic selection based on the day of the week
 # TODO add profiles to keep track of session logs and difficulty settings
@@ -32,29 +31,22 @@ import platform
 import random
 from random import randrange
 
-# Try to import colorama for ANSI color if running windows
-# NOTE color verified working on Linux Mint 17 Konsole session
+# Try to import colorama for ANSI color if running Windows
 color_enable = True
 if platform.system() == "Windows":
-    print "detected windows"
     try:
         import colorama
         # Initialize colorama without stripping ANSI codes to resolve issue when running in spyder console
         # also see https://code.google.com/p/spyderlib/issues/detail?id=1917
         colorama.init( strip = False )
-        print "imported colorama"
     except:
         # Disable color for windows without colorama
-        print "disabling color"
+        print "Disabling color (colorama python module is required for Windows platforms)"
         color_enable = False
         pass
-else:
-    print "detected non-windows"
 
 
 # Set configurations
-# TODO determine if running a windows machine without ANSI colors, if so disable colorization
-
 # TODO read configs from a settings file, and use a default if the settings file DNE
 MAX_INT_ADD      = 16
 MAX_INT_SUBTRACT = 8
@@ -66,14 +58,12 @@ MAX_INT_DIVIDE   = 2
 # Constants
 #-------------------------------------------------------------------
 if color_enable == True:
-    print "setting colors"
     RED    = '\033[31m'
     GREEN  = '\033[32m'
     YELLOW = '\033[33m'
     BLUE   = '\033[36m'
     OFF    = '\033[0m'
 else:
-    print "omitting colors"
     RED    = ''
     GREEN  = ''
     YELLOW = ''
@@ -232,7 +222,6 @@ while True:
     print "Answer: " + str( basic_math.answer )
         
     # Print whether they got the math problem correct, and colorize accordingly
-    # TODO disable colorization if OS is windows and colorama is not installed 
     if user_answer == basic_math.answer:
         print green( "Correct" )
     else:
