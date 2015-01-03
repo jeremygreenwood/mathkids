@@ -32,20 +32,22 @@ import platform
 import random
 from random import randrange
 
-
 # Try to import colorama for ANSI color if running windows
 # NOTE color verified working on Linux Mint 17 Konsole session
 color_enable = True
 if platform.system() == "Windows":
     print "detected windows"
-#    try:
-#        import colorama
-#        colorama.init()
-#    except:
-#        # Disable color for windows without colorama
-#        print "disabling color"
-#        color_enable = False
-#        pass
+    try:
+        import colorama
+        # Initialize colorama without stripping ANSI codes to resolve issue when running in spyder console
+        # also see https://code.google.com/p/spyderlib/issues/detail?id=1917
+        colorama.init( strip = False )
+        print "imported colorama"
+    except:
+        # Disable color for windows without colorama
+        print "disabling color"
+        color_enable = False
+        pass
 else:
     print "detected non-windows"
 
@@ -63,24 +65,20 @@ MAX_INT_DIVIDE   = 2
 #-------------------------------------------------------------------
 # Constants
 #-------------------------------------------------------------------
-#if color_enable == True:
-#    RED    = '\033[31m'
-#    GREEN  = '\033[32m'
-#    YELLOW = '\033[33m'
-#    BLUE   = '\033[34m'
-#    OFF    = '\033[0m'
-#else:
-#    RED    = ''
-#    GREEN  = ''
-#    YELLOW = ''
-#    BLUE   = ''
-#    OFF    = ''
-
-RED    = '\033[31m'
-GREEN  = '\033[32m'
-YELLOW = '\033[33m'
-BLUE   = '\033[34m'
-OFF    = '\033[0m'
+if color_enable == True:
+    print "setting colors"
+    RED    = '\033[31m'
+    GREEN  = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE   = '\033[36m'
+    OFF    = '\033[0m'
+else:
+    print "omitting colors"
+    RED    = ''
+    GREEN  = ''
+    YELLOW = ''
+    BLUE   = ''
+    OFF    = ''
 
 
 #-------------------------------------------------------------------
