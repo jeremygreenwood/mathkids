@@ -77,9 +77,10 @@ else:
 #-------------------------------------------------------------------
 class MathType:
     """Math problem type class, defines a type of math problem and its characteristics."""
-    def __init__( self, function, generate, symbol, maximum ):
+    def __init__( self, function, generate, hint, symbol, maximum ):
         self.func = function
         self.gen  = generate
+        self.hint = hint
         self.sym  = symbol
         self.max  = maximum
         self.enabled = False
@@ -100,6 +101,10 @@ class BasicMath:
     @staticmethod
     def add_gen_numbers( maximum ):
         return ( BasicMath.rand_get( maximum ), BasicMath.rand_get( maximum ) )
+
+    @staticmethod
+    def add_hint( lhs, rhs ):
+        return "You have " + str( lhs ) + " eggs and get " + str( rhs ) + " more. How many eggs?"
         
     @staticmethod
     def sub_func( a, b ):
@@ -118,6 +123,10 @@ class BasicMath:
             rhs = num1
             
         return ( lhs, rhs )
+
+    @staticmethod
+    def sub_hint( lhs, rhs ):
+        return "You have " + str( lhs ) + " eggs and lose " + str( rhs ) + ". How many eggs?"
         
     @staticmethod
     def mul_func( a, b ):
@@ -155,19 +164,18 @@ class BasicMath:
         self.problem_list = []
         
         # Set various operations
-        add = MathType( BasicMath.add_func, BasicMath.add_gen_numbers, "+", MAX_INT_ADD      )
-        sub = MathType( BasicMath.sub_func, BasicMath.sub_gen_numbers, "-", MAX_INT_SUBTRACT )
-        mul = MathType( BasicMath.mul_func, BasicMath.mul_gen_numbers, "*", MAX_INT_MULTIPLY )
-        div = MathType( BasicMath.div_func, BasicMath.div_gen_numbers, "/", MAX_INT_DIVIDE   )
+        add = MathType( BasicMath.add_func, BasicMath.add_gen_numbers, BasicMath.add_hint, "+", MAX_INT_ADD      )
+        sub = MathType( BasicMath.sub_func, BasicMath.sub_gen_numbers, BasicMath.sub_hint, "-", MAX_INT_SUBTRACT )
+#        mul = MathType( BasicMath.mul_func, BasicMath.mul_gen_numbers, "*", MAX_INT_MULTIPLY )
+#        div = MathType( BasicMath.div_func, BasicMath.div_gen_numbers, "/", MAX_INT_DIVIDE   )
         
         self.prob_add( add )
         self.prob_add( sub )
-        self.prob_add( mul )
-        self.prob_add( div )
+#        self.prob_add( mul )
+#        self.prob_add( div )
         
-    
     def prob_gen( self, prob_type ):
-        #""""Generate a math problem""""
+        """Generate a math problem"""
         # Generate random numbers for math problem
         self.num1, self.num2 = prob_type.gen( prob_type.max )
         
@@ -179,14 +187,38 @@ class BasicMath:
             print red( "An internal error occurred" )
             self.answer = 0
             
-        self.question_str = str( self.num1 ) + " " + problem.sym + " " + str( self.num2 ) + " = ?"
-        self.answer_str   = str( self.num1 ) + " " + problem.sym + " " + str( self.num2 ) + " = " + str( self.answer )
+        self.question_str = str( self.num1 ) + " " + prob_type.sym + " " + str( self.num2 ) + " = ?"
+        self.answer_str   = str( self.num1 ) + " " + prob_type.sym + " " + str( self.num2 ) + " = " + str( self.answer )
+    
+    def prob_hint( self ):
+        """Display a hint for the current math problem"""
+        print self.current_problem.hint( self.num1, self.num2 )
             
-        
     def prob_type_get( self ):
         """Returns a random math problem type that is enabled"""
         # TODO this should cross reference with enabled variable of each MathType (unless problem list is changed to only contain enabled problems)
-        return random.choice( self.problem_list )
+        self.current_problem = random.choice( self.problem_list )
+        return self.current_problem
+
+    def user_input_get( self ):
+        while True:
+            try:
+                user_input_str = raw_input( "Enter answer: " )
+                
+                # Check if the user wants to quit
+                if user_input_str == "quit":
+                    print blue( "Exiting the program..." )
+                    quit()
+                elif user_input_str == "hint":
+                    self.prob_hint()
+                    continue
+                    
+                return int( user_input_str )
+            except ValueError:
+                
+                # Failed to get an integer from the user input, print a message and try again
+                print yellow( "Answer not recognized." )
+                pass
         
 
 #class MathKids(BasicMath):
@@ -208,25 +240,8 @@ def yellow( text ):
 def blue( text ):
     return BLUE + text + OFF
 
-def user_input_get():
-    while True:
-        try:
-            user_input_str = raw_input( "Enter answer: " )
-            
-            # Check if the user wants to quit
-            # TODO process available commands here
-            if user_input_str == "quit":
-                print blue( "Exiting the program..." )
-                quit()
-                
-            return int( user_input_str )
-        except ValueError:
-            
-            # Failed to get an integer from the user input, print a message and try again
-            print yellow( "Answer not recognized." )
-            pass
-
-
+#print BasicMath.sub_hint( 2, 5 )
+#quit()
 #-------------------------------------------------------------------
 # Main
 #-------------------------------------------------------------------
@@ -250,7 +265,7 @@ while True:
     print basic_math.question_str
     
     # Get answer from user
-    user_answer = user_input_get()
+    user_answer = basic_math.user_input_get()
     
     # Print the calculated answer
     print "Answer: " + str( basic_math.answer )
