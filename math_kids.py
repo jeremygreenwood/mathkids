@@ -94,19 +94,19 @@ class BasicMath:
         return randrange( 0, maximum )
     
     @staticmethod
-    def func_add( a, b ):
+    def add_func( a, b ):
         return a + b
 
     @staticmethod
-    def gen_add_numbers( maximum ):
+    def add_gen_numbers( maximum ):
         return ( BasicMath.rand_get( maximum ), BasicMath.rand_get( maximum ) )
         
     @staticmethod
-    def func_subtract( a, b ):
+    def sub_func( a, b ):
         return a - b
 
     @staticmethod
-    def gen_subtract_numbers( maximum ):
+    def sub_gen_numbers( maximum ):
         num1 = BasicMath.rand_get( maximum )
         num2 = BasicMath.rand_get( maximum )
         
@@ -120,19 +120,19 @@ class BasicMath:
         return ( lhs, rhs )
         
     @staticmethod
-    def func_multiply( a, b ):
+    def mul_func( a, b ):
         return a * b
 
     @staticmethod
-    def gen_multiply_numbers( maximum ):
+    def mul_gen_numbers( maximum ):
         return ( BasicMath.rand_get( maximum ), BasicMath.rand_get( maximum ) )
         
     @staticmethod
-    def func_divide( a, b ):
+    def div_func( a, b ):
         return a / b
 
     @staticmethod
-    def gen_divide_numbers( maximum ):
+    def div_gen_numbers( maximum ):
         while True:
             lhs = BasicMath.rand_get( maximum )
             rhs = BasicMath.rand_get( maximum )
@@ -155,10 +155,10 @@ class BasicMath:
         self.problem_list = []
         
         # Set various operations
-        add = MathType( BasicMath.func_add,      BasicMath.gen_add_numbers,      "+", MAX_INT_ADD      )
-        sub = MathType( BasicMath.func_subtract, BasicMath.gen_subtract_numbers, "-", MAX_INT_SUBTRACT )
-        mul = MathType( BasicMath.func_multiply, BasicMath.gen_multiply_numbers, "*", MAX_INT_MULTIPLY )
-        div = MathType( BasicMath.func_divide,   BasicMath.gen_divide_numbers,   "/", MAX_INT_DIVIDE   )
+        add = MathType( BasicMath.add_func, BasicMath.add_gen_numbers, "+", MAX_INT_ADD      )
+        sub = MathType( BasicMath.sub_func, BasicMath.sub_gen_numbers, "-", MAX_INT_SUBTRACT )
+        mul = MathType( BasicMath.mul_func, BasicMath.mul_gen_numbers, "*", MAX_INT_MULTIPLY )
+        div = MathType( BasicMath.div_func, BasicMath.div_gen_numbers, "/", MAX_INT_DIVIDE   )
         
         self.prob_add( add )
         self.prob_add( sub )
