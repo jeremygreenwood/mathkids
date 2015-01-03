@@ -8,10 +8,9 @@
 #           python setup.py build
 #           python setup.py install
 #
-# TODO create library functions to make the high level parts of the program very easy for kids to read
 # TODO add usage statement
 # TODO add parameters to only ask questions for add, sub, mult, div, random, or cycle through
-#      perhaps have option to configure for automatic selection based on the day of the week
+#      consider option to configure for automatic selection based on the day of the week
 # TODO add profiles to keep track of session logs and difficulty settings
 #      may want to forgo profiles in favor of multiple installations
 # TODO add logging of each session (and print a summary of results) to time-stamped file in a directory based on user profile
@@ -53,6 +52,8 @@ MAX_INT_SUBTRACT = 8
 MAX_INT_MULTIPLY = 4
 MAX_INT_DIVIDE   = 2
 
+negative_num_enable = False
+
 
 #-------------------------------------------------------------------
 # Constants
@@ -76,10 +77,11 @@ else:
 #-------------------------------------------------------------------
 class MathType:
     """Math problem type class, defines a type of math problem and its characteristics."""
-    def __init__( self, function, symbol, maximum ):
+    def __init__( self, function, generate, symbol, maximum ):
         self.func = function
-        self.sym = symbol
-        self.max = maximum
+        self.gen  = generate
+        self.sym  = symbol
+        self.max  = maximum
         self.enabled = False
         
 
@@ -92,21 +94,59 @@ class BasicMath:
         return randrange( 0, maximum )
     
     @staticmethod
-    def math_func_add( a, b ):
+    def func_add( a, b ):
         return a + b
+
+    @staticmethod
+    def gen_add_numbers( maximum ):
+        return ( BasicMath.rand_get( maximum ), BasicMath.rand_get( maximum ) )
         
     @staticmethod
-    def math_func_subtract( a, b ):
+    def func_subtract( a, b ):
         return a - b
+
+    @staticmethod
+    def gen_subtract_numbers( maximum ):
+        num1 = BasicMath.rand_get( maximum )
+        num2 = BasicMath.rand_get( maximum )
+        
+        if num1 > num2:
+            lhs = num1
+            rhs = num2
+        else:
+            lhs = num2
+            rhs = num1
+            
+        return ( lhs, rhs )
         
     @staticmethod
-    def math_func_multiply( a, b ):
+    def func_multiply( a, b ):
         return a * b
+
+    @staticmethod
+    def gen_multiply_numbers( maximum ):
+        return ( BasicMath.rand_get( maximum ), BasicMath.rand_get( maximum ) )
         
     @staticmethod
-    def math_func_divide( a, b ):
-        # TODO avoid divide by zero
+    def func_divide( a, b ):
         return a / b
+
+    @staticmethod
+    def gen_divide_numbers( maximum ):
+        while True:
+            lhs = BasicMath.rand_get( maximum )
+            rhs = BasicMath.rand_get( maximum )
+            
+            # Avoid divide by zero
+            if rhs == 0:
+                continue
+            
+            # Avoid decimal results/remainders
+            # TODO consider adding configuration to enable remainders and provide answer as NrN (e.g. 5/3 = 1r2)
+            if float( lhs / rhs ) != float( lhs ) / float( rhs ):
+                continue
+                
+            return ( lhs, rhs )
 
     def prob_add( self, problem ):
         self.problem_list.append( problem )
@@ -115,10 +155,10 @@ class BasicMath:
         self.problem_list = []
         
         # Set various operations
-        add = MathType( BasicMath.math_func_add,      "+", MAX_INT_ADD      )
-        sub = MathType( BasicMath.math_func_subtract, "-", MAX_INT_SUBTRACT )
-        mul = MathType( BasicMath.math_func_multiply, "*", MAX_INT_MULTIPLY )
-        div = MathType( BasicMath.math_func_divide,   "/", MAX_INT_DIVIDE   )
+        add = MathType( BasicMath.func_add,      BasicMath.gen_add_numbers,      "+", MAX_INT_ADD      )
+        sub = MathType( BasicMath.func_subtract, BasicMath.gen_subtract_numbers, "-", MAX_INT_SUBTRACT )
+        mul = MathType( BasicMath.func_multiply, BasicMath.gen_multiply_numbers, "*", MAX_INT_MULTIPLY )
+        div = MathType( BasicMath.func_divide,   BasicMath.gen_divide_numbers,   "/", MAX_INT_DIVIDE   )
         
         self.prob_add( add )
         self.prob_add( sub )
@@ -129,16 +169,14 @@ class BasicMath:
     def prob_gen( self, prob_type ):
         #""""Generate a math problem""""
         # Generate random numbers for math problem
-        # TODO this may be best to associate with specific problem type (e.g. to avoid decimal numbers for division)
-        self.num1 = BasicMath.rand_get( prob_type.max )
-        self.num2 = BasicMath.rand_get( prob_type.max )
+        self.num1, self.num2 = prob_type.gen( prob_type.max )
         
-        # Compute the answer, avoiding divide by zeros    
-        # TODO remove once addressed by using problem specific random integer values which will not have a denominator of zero
+        # Compute the answer
         try:
             self.answer = prob_type.func( self.num1, self.num2 )
-        except ZeroDivisionError:
-            # TODO remove
+        except:
+            # TODO consider logging this occurrence and the problem values
+            print red( "An internal error occurred" )
             self.answer = 0
             
         self.question_str = str( self.num1 ) + " " + problem.sym + " " + str( self.num2 ) + " = ?"
@@ -160,19 +198,15 @@ class BasicMath:
 #-------------------------------------------------------------------
 def green( text ):
     return GREEN + text + OFF
-    
 
 def red( text ):
     return RED + text + OFF
-    
 
 def yellow( text ):
     return YELLOW + text + OFF
-    
 
 def blue( text ):
     return BLUE + text + OFF
-    
 
 def user_input_get():
     while True:
@@ -191,8 +225,8 @@ def user_input_get():
             # Failed to get an integer from the user input, print a message and try again
             print yellow( "Answer not recognized." )
             pass
-    
-    
+
+
 #-------------------------------------------------------------------
 # Main
 #-------------------------------------------------------------------
