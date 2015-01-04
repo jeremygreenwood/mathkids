@@ -23,7 +23,6 @@
 # TODO add commands:
 #       - should make the command or the first letter of the command active to run the command
 #       * help command to display a list of available commands and what they do
-#       * hint command to convert the math problem into a word problem for kids to conceptualize
 
 
 import platform
@@ -104,7 +103,12 @@ class BasicMath:
 
     @staticmethod
     def add_hint( lhs, rhs ):
-        return "You have " + str( lhs ) + " eggs and get " + str( rhs ) + " more. How many eggs?"
+        if lhs != 1:
+            lhs_plural = "s"
+        else:
+            lhs_plural = ""
+            
+        return "You have " + str( lhs ) + " egg" + lhs_plural + " and get " + str( rhs ) + " more. How many eggs?"
         
     @staticmethod
     def sub_func( a, b ):
@@ -126,7 +130,12 @@ class BasicMath:
 
     @staticmethod
     def sub_hint( lhs, rhs ):
-        return "You have " + str( lhs ) + " eggs and lose " + str( rhs ) + ". How many eggs?"
+        if lhs != 1:
+            lhs_plural = "s"
+        else:
+            lhs_plural = ""
+            
+        return "You have " + str( lhs ) + " egg" + lhs_plural + " and lose " + str( rhs ) + ". How many eggs?"
         
     @staticmethod
     def mul_func( a, b ):
@@ -135,6 +144,20 @@ class BasicMath:
     @staticmethod
     def mul_gen_numbers( maximum ):
         return ( BasicMath.rand_get( maximum ), BasicMath.rand_get( maximum ) )
+
+    @staticmethod
+    def mul_hint( lhs, rhs ):
+        if lhs != 1:
+            lhs_plural = "s"
+        else:
+            lhs_plural = ""
+            
+        if rhs != 1:
+            rhs_plural = "s"
+        else:
+            rhs_plural = ""
+        
+        return "You have " + str( lhs ) + " basket" + lhs_plural + " with " + str( rhs ) + " egg" + rhs_plural + " in each basket. How many eggs?"
         
     @staticmethod
     def div_func( a, b ):
@@ -157,6 +180,20 @@ class BasicMath:
                 
             return ( lhs, rhs )
 
+    @staticmethod
+    def div_hint( lhs, rhs ):
+        if lhs != 1:
+            lhs_plural = "s"
+        else:
+            lhs_plural = ""
+            
+        if rhs != 1:
+            rhs_plural = "s"
+        else:
+            rhs_plural = ""
+            
+        return "You have " + str( lhs ) + " egg" + lhs_plural + " and need to split up into " + str( rhs ) + " equal pile" + rhs_plural + ". How many eggs in each pile?"
+
     def prob_add( self, problem ):
         self.problem_list.append( problem )
         
@@ -166,13 +203,13 @@ class BasicMath:
         # Set various operations
         add = MathType( BasicMath.add_func, BasicMath.add_gen_numbers, BasicMath.add_hint, "+", MAX_INT_ADD      )
         sub = MathType( BasicMath.sub_func, BasicMath.sub_gen_numbers, BasicMath.sub_hint, "-", MAX_INT_SUBTRACT )
-#        mul = MathType( BasicMath.mul_func, BasicMath.mul_gen_numbers, "*", MAX_INT_MULTIPLY )
-#        div = MathType( BasicMath.div_func, BasicMath.div_gen_numbers, "/", MAX_INT_DIVIDE   )
+        mul = MathType( BasicMath.mul_func, BasicMath.mul_gen_numbers, BasicMath.mul_hint, "*", MAX_INT_MULTIPLY )
+        div = MathType( BasicMath.div_func, BasicMath.div_gen_numbers, BasicMath.div_hint, "/", MAX_INT_DIVIDE   )
         
         self.prob_add( add )
         self.prob_add( sub )
-#        self.prob_add( mul )
-#        self.prob_add( div )
+        self.prob_add( mul )
+        self.prob_add( div )
         
     def prob_gen( self, prob_type ):
         """Generate a math problem"""
@@ -209,6 +246,7 @@ class BasicMath:
                 if user_input_str == "quit":
                     print blue( "Exiting the program..." )
                     quit()
+                # Check if the user wants a hint for the current problem
                 elif user_input_str == "hint":
                     self.prob_hint()
                     continue
@@ -240,8 +278,7 @@ def yellow( text ):
 def blue( text ):
     return BLUE + text + OFF
 
-#print BasicMath.sub_hint( 2, 5 )
-#quit()
+
 #-------------------------------------------------------------------
 # Main
 #-------------------------------------------------------------------
