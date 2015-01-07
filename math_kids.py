@@ -8,12 +8,15 @@
 #           python setup.py build
 #           python setup.py install
 #
+# TODO add logging of each session (and print a summary of results) to time-stamped file in a directory based
+#      on user profile
 # TODO add usage statement
-# TODO add parameters to only ask questions for add, sub, mult, div, random, or cycle through
-#      consider option to configure for automatic selection based on the day of the week
+# TODO add parameters:
+#      * restrict questions for add, sub, mult, div, random, or cycle through
+#        consider option to configure for automatic selection based on the day of the week
+#      * how many math questions to perform
 # TODO add profiles to keep track of session logs and difficulty settings
 #      may want to forgo profiles in favor of multiple installations
-# TODO add logging of each session (and print a summary of results) to time-stamped file in a directory based on user profile
 # TODO add learning functionality:
 #      if a question has been answered correctly many times it should be omitted
 #      if too many questions are omitted then the maximum range value for the type of problem should be increased
@@ -23,6 +26,7 @@
 # TODO add commands:
 #       - should make the command or the first letter of the command active to run the command
 #       * help command to display a list of available commands and what they do
+# TODO update readme to mention python version, maturity, features, etc.
 
 
 import platform
@@ -46,6 +50,8 @@ if platform.system() == "Windows":
 
 # Set configurations
 # TODO read configs from a settings file, and use a default if the settings file DNE
+NUM_PROBLEMS     = 10
+
 MAX_INT_ADD      = 16
 MAX_INT_SUBTRACT = 8
 MAX_INT_MULTIPLY = 4
@@ -289,8 +295,11 @@ def blue( text ):
 basic_math = BasicMath()
 
 
-# Continually ask arithmetic problems
-while True:
+# Ask arithmetic problems for configured number of times
+prob_num    = 1
+cnt_correct = 0
+
+while prob_num <= NUM_PROBLEMS:
     
     # Set current math operation randomly
     problem = basic_math.prob_type_get()
@@ -310,8 +319,28 @@ while True:
     # Print whether they got the math problem correct, and colorize accordingly
     if user_answer == basic_math.answer:
         print green( "Correct" )
+        cnt_correct += 1
     else:
         print red( "Not correct" )
         
     print "---------------------------------------------------"
     
+    prob_num += 1
+    
+
+# Print results for all problems
+percent = int( 100 * float( cnt_correct ) / float( NUM_PROBLEMS ) )
+
+print "Results: " + str( cnt_correct ) + "/" + str( NUM_PROBLEMS ) + " correct (" + str( percent ) + "%)"
+
+if percent >= 100:
+    print "Perfect score!"
+elif percent >= 90:
+    print "Amazing job!"
+elif percent >= 80:
+    print "Great job!"
+elif percent >= 50:
+    print "Good job. You are doing well, and with practice will do even better!"
+else:
+    print "Good try. With practice you will do better, you can do it!"
+
