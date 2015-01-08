@@ -26,7 +26,6 @@
 # TODO add commands:
 #       - should make the command or the first letter of the command active to run the command
 #       * help command to display a list of available commands and what they do
-# TODO update readme to mention python version, maturity, features, etc.
 
 
 import platform
@@ -288,59 +287,57 @@ def blue( text ):
 #-------------------------------------------------------------------
 # Main
 #-------------------------------------------------------------------
-# TODO create a __main__ function
+if __name__ == "__main__":
 
-# Create a list of math problem types, such that a random problem type may be used
-# TODO consider adding "enabled" as a configuration setting and only adding enabled problem types to the list
-basic_math = BasicMath()
-
-
-# Ask arithmetic problems for configured number of times
-prob_num    = 1
-cnt_correct = 0
-
-while prob_num <= NUM_PROBLEMS:
+    # Create a list of math problem types, such that a random problem type may be used
+    # TODO consider adding "enabled" as a configuration setting and only adding enabled problem types to the list
+    basic_math = BasicMath()
     
-    # Set current math operation randomly
-    problem = basic_math.prob_type_get()
+    # Ask arithmetic problems for configured number of times
+    prob_num    = 1
+    cnt_correct = 0
     
-    # Generate a math problem for the type of problem which was chosen randomly in the previous statement
-    basic_math.prob_gen( problem )
-    
-    # Print the math problem as a question
-    print basic_math.question_str
-    
-    # Get answer from user
-    user_answer = basic_math.user_input_get()
-    
-    # Print the calculated answer
-    print "Answer: " + str( basic_math.answer )
+    while prob_num <= NUM_PROBLEMS:
         
-    # Print whether they got the math problem correct, and colorize accordingly
-    if user_answer == basic_math.answer:
-        print green( "Correct" )
-        cnt_correct += 1
+        # Set current math operation randomly
+        problem = basic_math.prob_type_get()
+        
+        # Generate a math problem for the type of problem which was chosen randomly in the previous statement
+        basic_math.prob_gen( problem )
+        
+        # Print the math problem as a question
+        print basic_math.question_str
+        
+        # Get answer from user
+        user_answer = basic_math.user_input_get()
+        
+        # Print the calculated answer
+        print "Answer: " + str( basic_math.answer )
+            
+        # Print whether they got the math problem correct, and colorize accordingly
+        if user_answer == basic_math.answer:
+            print green( "Correct" )
+            cnt_correct += 1
+        else:
+            print red( "Not correct" )
+            
+        print "---------------------------------------------------"
+        
+        prob_num += 1
+        
+    # Print results for all problems
+    percent = int( 100 * float( cnt_correct ) / float( NUM_PROBLEMS ) )
+    
+    print "Results: " + str( cnt_correct ) + "/" + str( NUM_PROBLEMS ) + " correct (" + str( percent ) + "%)"
+    
+    if percent >= 100:
+        print "Perfect score!"
+    elif percent >= 90:
+        print "Amazing job!"
+    elif percent >= 80:
+        print "Great job!"
+    elif percent >= 50:
+        print "Good job. You are doing well, and with practice will do even better!"
     else:
-        print red( "Not correct" )
-        
-    print "---------------------------------------------------"
-    
-    prob_num += 1
-    
-
-# Print results for all problems
-percent = int( 100 * float( cnt_correct ) / float( NUM_PROBLEMS ) )
-
-print "Results: " + str( cnt_correct ) + "/" + str( NUM_PROBLEMS ) + " correct (" + str( percent ) + "%)"
-
-if percent >= 100:
-    print "Perfect score!"
-elif percent >= 90:
-    print "Amazing job!"
-elif percent >= 80:
-    print "Great job!"
-elif percent >= 50:
-    print "Good job. You are doing well, and with practice will do even better!"
-else:
-    print "Good try. With practice you will do better, you can do it!"
+        print "Good try. With practice you will do better, you can do it!"
 
