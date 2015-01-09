@@ -31,6 +31,7 @@
 import platform
 import random
 from random import randrange
+import sys
 
 # Try to import colorama for ANSI color if running Windows
 color_enable = True
@@ -328,8 +329,14 @@ if __name__ == "__main__":
     # Print results for all problems
     percent = int( 100 * float( cnt_correct ) / float( NUM_PROBLEMS ) )
     
-    print "Results: " + str( cnt_correct ) + "/" + str( NUM_PROBLEMS ) + " correct (" + str( percent ) + "%)"
+    print "Results:"
     
+    sys.stdout.write( "    " )
+    
+    print str( cnt_correct ) + "/" + str( NUM_PROBLEMS ) + " correct (" + str( percent ) + "%)"
+
+    sys.stdout.write( "    " )
+
     if percent >= 100:
         print "Perfect score!"
     elif percent >= 90:
@@ -341,3 +348,5 @@ if __name__ == "__main__":
     else:
         print "Good try. With practice you will do better, you can do it!"
 
+    print blue( "\nPress Enter to quit" )
+    raw_input()
