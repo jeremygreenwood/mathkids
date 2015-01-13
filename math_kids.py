@@ -268,7 +268,7 @@ def yellow( text ):
 def blue( text ):
     return BLUE + text + OFF
     
-def user_input_get( math_prob ):
+def user_input_get( game ):
     while True:
         try:
             user_input_str = raw_input( "Enter answer: " )
@@ -279,7 +279,7 @@ def user_input_get( math_prob ):
                 return None
             # Check if the user wants a hint for the current problem
             elif user_input_str == "hint":
-                math_prob.prob_hint()
+                game.math.prob_hint()
                 continue
                 
             return int( user_input_str )
@@ -310,7 +310,7 @@ if __name__ == "__main__":
         print game.math.question_str
         
         # Get answer from user
-        user_answer = user_input_get( game.math )
+        user_answer = user_input_get( game )
 
         # If no user input, assume the exit command was executed
         if user_answer == None:
