@@ -250,6 +250,7 @@ class Game:
         self.num_problems = num_problems
         self.prob_cnt     = 0
         self.correct_cnt  = 0
+        self.math         = BasicMath()
         
         
 #-------------------------------------------------------------------
@@ -293,10 +294,6 @@ def user_input_get( math_prob ):
 # Main
 #-------------------------------------------------------------------
 if __name__ == "__main__":
-
-    # Create a list of math problem types, such that a random problem type may be used
-    # TODO consider adding "enabled" as a configuration setting and only adding enabled problem types to the list
-    basic_math = BasicMath()
     
     # Ask arithmetic problems for configured number of times
     game = Game( NUM_PROBLEMS )
@@ -304,26 +301,26 @@ if __name__ == "__main__":
     while game.prob_cnt < game.num_problems:
         
         # Set current math operation randomly
-        problem = basic_math.prob_type_get()
+        problem = game.math.prob_type_get()
         
         # Generate a math problem for the type of problem which was chosen randomly in the previous statement
-        basic_math.prob_gen( problem )
+        game.math.prob_gen( problem )
         
         # Print the math problem as a question
-        print basic_math.question_str
+        print game.math.question_str
         
         # Get answer from user
-        user_answer = user_input_get( basic_math )
+        user_answer = user_input_get( game.math )
 
         # If no user input, assume the exit command was executed
         if user_answer == None:
             break
         
         # Print the calculated answer
-        print "Answer: " + str( basic_math.answer )
+        print "Answer: " + str( game.math.answer )
             
         # Print whether they got the math problem correct, and colorize accordingly
-        if user_answer == basic_math.answer:
+        if user_answer == game.math.answer:
             print green( "Correct" )
             game.correct_cnt += 1
         else:
