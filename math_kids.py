@@ -242,8 +242,16 @@ class BasicMath:
         # TODO this should cross reference with enabled variable of each MathType (unless problem list is changed to only contain enabled problems)
         self.current_problem = random.choice( self.problem_list )
         return self.current_problem
-
-    
+        
+        
+class Game:
+    """Math game class, keeps track of game statistics."""
+    def __init__( self, num_problems ):
+        self.num_problems = num_problems
+        self.prob_cnt     = 0
+        self.correct_cnt  = 0
+        
+        
 #-------------------------------------------------------------------
 # Functions
 #-------------------------------------------------------------------
@@ -291,10 +299,9 @@ if __name__ == "__main__":
     basic_math = BasicMath()
     
     # Ask arithmetic problems for configured number of times
-    prob_cnt    = 0
-    correct_cnt = 0
+    game = Game( NUM_PROBLEMS )
     
-    while prob_cnt < NUM_PROBLEMS:
+    while game.prob_cnt < game.num_problems:
         
         # Set current math operation randomly
         problem = basic_math.prob_type_get()
@@ -318,26 +325,26 @@ if __name__ == "__main__":
         # Print whether they got the math problem correct, and colorize accordingly
         if user_answer == basic_math.answer:
             print green( "Correct" )
-            correct_cnt += 1
+            game.correct_cnt += 1
         else:
             print red( "Not correct" )
             
         print "---------------------------------------------------"
         
-        prob_cnt += 1
+        game.prob_cnt += 1
         
     # Print results for all problems
     # TODO put the below functionality into a function to display statistics, this can be reused for the command "stats"
-    if prob_cnt > 0:
+    if game.prob_cnt > 0:
 
         # Calculate the percentage of correct problems
-        percent = int( 100 * float( correct_cnt ) / float( prob_cnt ) )
+        percent = int( 100 * float( game.correct_cnt ) / float( game.prob_cnt ) )
         
         print "Results:"
         
         sys.stdout.write( "    " )
         
-        print str( correct_cnt ) + "/" + str( prob_cnt ) + " correct (" + str( percent ) + "%)"
+        print str( game.correct_cnt ) + "/" + str( game.prob_cnt ) + " correct (" + str( percent ) + "%)"
 
         sys.stdout.write( "    " )
 
