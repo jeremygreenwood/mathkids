@@ -252,6 +252,34 @@ class Game:
         self.correct_cnt  = 0
         self.math         = BasicMath()
         
+    def stat_display( self ):
+        """Display statistics"""
+        if self.prob_cnt > 0:
+    
+            # Calculate the percentage of correct problems
+            percent = int( 100 * float( self.correct_cnt ) / float( self.prob_cnt ) )
+            
+            print "Results:"
+            
+            sys.stdout.write( "    " )
+            
+            print str( self.correct_cnt ) + "/" + str( self.prob_cnt ) + " correct (" + str( percent ) + "%)"
+    
+            sys.stdout.write( "    " )
+    
+            if percent >= 100:
+                print "Perfect score!"
+            elif percent >= 90:
+                print "Amazing job!"
+            elif percent >= 80:
+                print "Great job!"
+            elif percent >= 50:
+                print "Good job. You are doing well, and with practice will do even better!"
+            else:
+                print "Good try. With practice you will do better, you can do it!"
+        else:
+            print "No results to display."
+        
         
 #-------------------------------------------------------------------
 # Functions
@@ -280,6 +308,10 @@ def user_input_get( game ):
             # Check if the user wants a hint for the current problem
             elif user_input_str == "hint":
                 game.math.prob_hint()
+                continue
+            # Check if the user wants to see statistics for the current game
+            elif ( user_input_str == "stat" ) or ( user_input_str == "check" ):
+                game.stat_display()
                 continue
                 
             return int( user_input_str )
@@ -330,33 +362,7 @@ if __name__ == "__main__":
         
         game.prob_cnt += 1
         
-    # Print results for all problems
-    # TODO put the below functionality into a function to display statistics, this can be reused for the command "stats"
-    if game.prob_cnt > 0:
-
-        # Calculate the percentage of correct problems
-        percent = int( 100 * float( game.correct_cnt ) / float( game.prob_cnt ) )
-        
-        print "Results:"
-        
-        sys.stdout.write( "    " )
-        
-        print str( game.correct_cnt ) + "/" + str( game.prob_cnt ) + " correct (" + str( percent ) + "%)"
-
-        sys.stdout.write( "    " )
-
-        if percent >= 100:
-            print "Perfect score!"
-        elif percent >= 90:
-            print "Amazing job!"
-        elif percent >= 80:
-            print "Great job!"
-        elif percent >= 50:
-            print "Good job. You are doing well, and with practice will do even better!"
-        else:
-            print "Good try. With practice you will do better, you can do it!"
-    else:
-        print "No results to display."
+    game.stat_display()
 
     print blue( "\nPress Enter to quit" )
     raw_input()
