@@ -242,29 +242,63 @@ class BasicMath:
         # TODO this should cross reference with enabled variable of each MathType (unless problem list is changed to only contain enabled problems)
         self.current_problem = random.choice( self.problem_list )
         return self.current_problem
-
-    def user_input_get( self ):
-        while True:
-            try:
-                user_input_str = raw_input( "Enter answer: " )
-                
-                # Check if the user wants to quit
-                if ( user_input_str == "quit" ) or ( user_input_str == "exit" ):
-                    print blue( "Exiting the program..." )
-                    return None
-                # Check if the user wants a hint for the current problem
-                elif user_input_str == "hint":
-                    self.prob_hint()
-                    continue
-                    
-                return int( user_input_str )
-            except ValueError:
-                
-                # Failed to get an integer from the user input, print a message and try again
-                print yellow( "Answer not recognized." )
-                pass
+        
+        
+class Game:
+    """Math game class, keeps track of game statistics."""
+    def __init__( self, num_problems ):
+        self.num_problems = num_problems
+        self.prob_cnt     = 0
+        self.correct_cnt  = 0
+        self.math         = BasicMath()
+        
+    def stat_display( self, done ):
+        """Display statistics"""
+        # If user entered the stat command display how many problems are remaining
+        if done == False:
+            num_prob_remaining = self.num_problems - self.prob_cnt
+            if num_prob_remaining != 1:
+                rem_plural = "s"
+            else:
+                rem_plural = ""
+            print "You have " + str( num_prob_remaining ) + " problem" + rem_plural + " left to do."
+        
+        # Verify at least one problem has been done in order to display results
+        if self.prob_cnt > 0:
     
+            # Calculate the percentage of correct problems
+            percent = int( 100 * float( self.correct_cnt ) / float( self.prob_cnt ) )
+            
+            print "Results:"
+            
+            sys.stdout.write( "    " )
+            
+            print str( self.correct_cnt ) + "/" + str( self.prob_cnt ) + " correct (" + str( percent ) + "%)"
+    
+            # If user is done print an encouraging message based on results
+            if done == True:
+                sys.stdout.write( "    " )
+        
+                if percent >= 100:
+                    print "Perfect score!"
+                elif percent >= 90:
+                    print "Amazing job!"
+                elif percent >= 80:
+                    print "Great job!"
+                elif percent >= 50:
+                    print "Good job. You are doing well, and with practice will do even better!"
+                else:
+                    print "Good try. With practice you will do better, you can do it!"
+        else:
+            print "No results to display."
 
+        # If user is done pause for user to see results before quitting
+        if done == True:
+            print blue( "\nPress Enter to quit" )
+            raw_input()
+            quit()
+        
+        
 #-------------------------------------------------------------------
 # Functions
 #-------------------------------------------------------------------
@@ -279,80 +313,70 @@ def yellow( text ):
 
 def blue( text ):
     return BLUE + text + OFF
+    
+def user_input_get( game ):
+    while True:
+        try:
+            user_input_str = raw_input( "Enter answer: " )
+            
+            # Check if the user wants to quit
+            if ( user_input_str == "quit" ) or ( user_input_str == "exit" ):
+                game.stat_display( done = True )
+            # Check if the user wants a hint for the current problem
+            elif user_input_str == "hint":
+                game.math.prob_hint()
+                continue
+            # Check if the user wants to see statistics for the current game
+            elif ( user_input_str == "stat" ) or ( user_input_str == "check" ):
+                game.stat_display( done = False )
+                continue
+                
+            return int( user_input_str )
+        except ValueError:
+            
+            # Failed to get an integer from the user input, print a message and try again
+            print yellow( "Answer not recognized." )
+            pass
 
 
 #-------------------------------------------------------------------
 # Main
 #-------------------------------------------------------------------
 if __name__ == "__main__":
-
-    # Create a list of math problem types, such that a random problem type may be used
-    # TODO consider adding "enabled" as a configuration setting and only adding enabled problem types to the list
-    basic_math = BasicMath()
     
     # Ask arithmetic problems for configured number of times
-    prob_cnt    = 0
-    correct_cnt = 0
+    game = Game( NUM_PROBLEMS )
     
-    while prob_cnt < NUM_PROBLEMS:
+    while game.prob_cnt < game.num_problems:
         
         # Set current math operation randomly
-        problem = basic_math.prob_type_get()
+        problem = game.math.prob_type_get()
         
         # Generate a math problem for the type of problem which was chosen randomly in the previous statement
-        basic_math.prob_gen( problem )
+        game.math.prob_gen( problem )
         
         # Print the math problem as a question
-        print basic_math.question_str
+        print game.math.question_str
         
         # Get answer from user
-        user_answer = basic_math.user_input_get()
+        user_answer = user_input_get( game )
 
         # If no user input, assume the exit command was executed
         if user_answer == None:
             break
         
         # Print the calculated answer
-        print "Answer: " + str( basic_math.answer )
+        print "Answer: " + str( game.math.answer )
             
         # Print whether they got the math problem correct, and colorize accordingly
-        if user_answer == basic_math.answer:
+        if user_answer == game.math.answer:
             print green( "Correct" )
-            correct_cnt += 1
+            game.correct_cnt += 1
         else:
             print red( "Not correct" )
             
         print "---------------------------------------------------"
         
-        prob_cnt += 1
+        game.prob_cnt += 1
         
-    # Print results for all problems
-    # TODO put the below functionality into a function to display statistics, this can be reused for the command "stats"
-    if prob_cnt > 0:
-
-        # Calculate the percentage of correct problems
-        percent = int( 100 * float( correct_cnt ) / float( prob_cnt ) )
-        
-        print "Results:"
-        
-        sys.stdout.write( "    " )
-        
-        print str( correct_cnt ) + "/" + str( prob_cnt ) + " correct (" + str( percent ) + "%)"
-
-        sys.stdout.write( "    " )
-
-        if percent >= 100:
-            print "Perfect score!"
-        elif percent >= 90:
-            print "Amazing job!"
-        elif percent >= 80:
-            print "Great job!"
-        elif percent >= 50:
-            print "Good job. You are doing well, and with practice will do even better!"
-        else:
-            print "Good try. With practice you will do better, you can do it!"
-    else:
-        print "No results to display."
-
-    print blue( "\nPress Enter to quit" )
-    raw_input()
+    game.stat_display( done = True )
