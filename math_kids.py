@@ -252,8 +252,18 @@ class Game:
         self.correct_cnt  = 0
         self.math         = BasicMath()
         
-    def stat_display( self ):
+    def stat_display( self, done ):
         """Display statistics"""
+        # If user entered the stat command display how many problems are remaining
+        if done == False:
+            num_prob_remaining = self.num_problems - self.prob_cnt
+            if num_prob_remaining != 1:
+                rem_plural = "s"
+            else:
+                rem_plural = ""
+            print "You have " + str( num_prob_remaining ) + " problem" + rem_plural + " left to do."
+        
+        # Verify at least one problem has been done in order to display results
         if self.prob_cnt > 0:
     
             # Calculate the percentage of correct problems
@@ -265,20 +275,28 @@ class Game:
             
             print str( self.correct_cnt ) + "/" + str( self.prob_cnt ) + " correct (" + str( percent ) + "%)"
     
-            sys.stdout.write( "    " )
-    
-            if percent >= 100:
-                print "Perfect score!"
-            elif percent >= 90:
-                print "Amazing job!"
-            elif percent >= 80:
-                print "Great job!"
-            elif percent >= 50:
-                print "Good job. You are doing well, and with practice will do even better!"
-            else:
-                print "Good try. With practice you will do better, you can do it!"
+            # If user is done print an encouraging message based on results
+            if done == True:
+                sys.stdout.write( "    " )
+        
+                if percent >= 100:
+                    print "Perfect score!"
+                elif percent >= 90:
+                    print "Amazing job!"
+                elif percent >= 80:
+                    print "Great job!"
+                elif percent >= 50:
+                    print "Good job. You are doing well, and with practice will do even better!"
+                else:
+                    print "Good try. With practice you will do better, you can do it!"
         else:
             print "No results to display."
+
+        # If user is done pause for user to see results before quitting
+        if done == True:
+            print blue( "\nPress Enter to quit" )
+            raw_input()
+            quit()
         
         
 #-------------------------------------------------------------------
@@ -303,15 +321,14 @@ def user_input_get( game ):
             
             # Check if the user wants to quit
             if ( user_input_str == "quit" ) or ( user_input_str == "exit" ):
-                print blue( "Exiting the program..." )
-                return None
+                game.stat_display( done = True )
             # Check if the user wants a hint for the current problem
             elif user_input_str == "hint":
                 game.math.prob_hint()
                 continue
             # Check if the user wants to see statistics for the current game
             elif ( user_input_str == "stat" ) or ( user_input_str == "check" ):
-                game.stat_display()
+                game.stat_display( done = False )
                 continue
                 
             return int( user_input_str )
@@ -362,7 +379,4 @@ if __name__ == "__main__":
         
         game.prob_cnt += 1
         
-    game.stat_display()
-
-    print blue( "\nPress Enter to quit" )
-    raw_input()
+    game.stat_display( done = True )
