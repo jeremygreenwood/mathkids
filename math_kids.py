@@ -243,28 +243,7 @@ class BasicMath:
         self.current_problem = random.choice( self.problem_list )
         return self.current_problem
 
-    def user_input_get( self ):
-        while True:
-            try:
-                user_input_str = raw_input( "Enter answer: " )
-                
-                # Check if the user wants to quit
-                if ( user_input_str == "quit" ) or ( user_input_str == "exit" ):
-                    print blue( "Exiting the program..." )
-                    return None
-                # Check if the user wants a hint for the current problem
-                elif user_input_str == "hint":
-                    self.prob_hint()
-                    continue
-                    
-                return int( user_input_str )
-            except ValueError:
-                
-                # Failed to get an integer from the user input, print a message and try again
-                print yellow( "Answer not recognized." )
-                pass
     
-
 #-------------------------------------------------------------------
 # Functions
 #-------------------------------------------------------------------
@@ -279,6 +258,27 @@ def yellow( text ):
 
 def blue( text ):
     return BLUE + text + OFF
+    
+def user_input_get( math_prob ):
+    while True:
+        try:
+            user_input_str = raw_input( "Enter answer: " )
+            
+            # Check if the user wants to quit
+            if ( user_input_str == "quit" ) or ( user_input_str == "exit" ):
+                print blue( "Exiting the program..." )
+                return None
+            # Check if the user wants a hint for the current problem
+            elif user_input_str == "hint":
+                math_prob.prob_hint()
+                continue
+                
+            return int( user_input_str )
+        except ValueError:
+            
+            # Failed to get an integer from the user input, print a message and try again
+            print yellow( "Answer not recognized." )
+            pass
 
 
 #-------------------------------------------------------------------
@@ -306,7 +306,7 @@ if __name__ == "__main__":
         print basic_math.question_str
         
         # Get answer from user
-        user_answer = basic_math.user_input_get()
+        user_answer = user_input_get( basic_math )
 
         # If no user input, assume the exit command was executed
         if user_answer == None:
