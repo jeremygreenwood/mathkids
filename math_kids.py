@@ -96,6 +96,13 @@ class BasicMath:
     """Basic mathematics class, manages list of different types of math problems."""
 
     @staticmethod
+    def pluralize( word, num ):
+        if num != 1:
+            return word + "s"
+        else:
+            return word
+
+    @staticmethod
     def rand_get( maximum ):
         return randrange( 0, maximum )
     
@@ -109,12 +116,10 @@ class BasicMath:
 
     @staticmethod
     def add_hint( lhs, rhs ):
-        if lhs != 1:
-            lhs_plural = "s"
-        else:
-            lhs_plural = ""
+        item_type = "egg"
+        lhs_items = BasicMath.pluralize( item_type, lhs )
             
-        return "You have " + str( lhs ) + " egg" + lhs_plural + " and get " + str( rhs ) + " more. How many eggs?"
+        return "You have " + str( lhs ) + " " + lhs_items + " and get " + str( rhs ) + " more. How many " + item_type + "s?"
         
     @staticmethod
     def sub_func( a, b ):
@@ -136,12 +141,10 @@ class BasicMath:
 
     @staticmethod
     def sub_hint( lhs, rhs ):
-        if lhs != 1:
-            lhs_plural = "s"
-        else:
-            lhs_plural = ""
+        item_type = "egg"
+        lhs_items = BasicMath.pluralize( item_type, lhs )
             
-        return "You have " + str( lhs ) + " egg" + lhs_plural + " and lose " + str( rhs ) + ". How many eggs?"
+        return "You have " + str( lhs ) + " " + lhs_items + " and lose " + str( rhs ) + ". How many " + item_type + "s?"
         
     @staticmethod
     def mul_func( a, b ):
@@ -153,17 +156,12 @@ class BasicMath:
 
     @staticmethod
     def mul_hint( lhs, rhs ):
-        if lhs != 1:
-            lhs_plural = "s"
-        else:
-            lhs_plural = ""
-            
-        if rhs != 1:
-            rhs_plural = "s"
-        else:
-            rhs_plural = ""
+        lhs_item_type = "basket"
+        rhs_item_type = "egg"
+        lhs_items = BasicMath.pluralize( lhs_item_type, lhs )
+        rhs_items = BasicMath.pluralize( rhs_item_type, rhs )
         
-        return "You have " + str( lhs ) + " basket" + lhs_plural + " with " + str( rhs ) + " egg" + rhs_plural + " in each basket. How many eggs?"
+        return "You have " + str( lhs ) + " " + lhs_items + " with " + str( rhs ) + " " + rhs_items + " in each " + lhs_item_type + ". How many " + rhs_item_type + "s?"
         
     @staticmethod
     def div_func( a, b ):
@@ -188,17 +186,12 @@ class BasicMath:
 
     @staticmethod
     def div_hint( lhs, rhs ):
-        if lhs != 1:
-            lhs_plural = "s"
-        else:
-            lhs_plural = ""
+        lhs_item_type = "egg"
+        rhs_item_type = "pile"
+        lhs_items = BasicMath.pluralize( lhs_item_type, lhs )
+        rhs_items = BasicMath.pluralize( rhs_item_type, rhs )
             
-        if rhs != 1:
-            rhs_plural = "s"
-        else:
-            rhs_plural = ""
-            
-        return "You have " + str( lhs ) + " egg" + lhs_plural + " and need to split up into " + str( rhs ) + " equal pile" + rhs_plural + ". How many eggs in each pile?"
+        return "You have " + str( lhs ) + " " + lhs_items + " and need to split up into " + str( rhs ) + " equal " + rhs_items + ". How many " + lhs_item_type + "s in each " + rhs_item_type + "?"
 
     def prob_add( self, problem ):
         self.problem_list.append( problem )
