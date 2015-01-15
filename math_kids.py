@@ -32,6 +32,7 @@ import platform
 import random
 from random import randrange
 import sys
+import getopt
 
 # Try to import colorama for ANSI color if running Windows
 color_enable = True
@@ -330,12 +331,45 @@ def user_input_get( game ):
             # Failed to get an integer from the user input, print a message and try again
             print yellow( "Answer not recognized." )
             pass
+    
+def usage():
+    print "math_kids.py [options]"
+    print "Option       Default value   Description"
+    print " h                           Print this help message."
+    print " u <user>    default         Set the user profile to use."
+        
+def cmd_opt_parse():
+    global username
+    
+    opt_list = "hu:"
+    try:
+        opts, args = getopt.getopt( sys.argv[ 1: ], opt_list )
+    except getopt.GetoptError as err:
+        # Print help information and exit
+        print str( err )
+        usage()
+        sys.exit( 2 )
+
+    for o, a in opts:
+        if o == "-h":
+            usage()
+            quit()
+        elif o == "-u":
+            username = a
+        else:
+            assert False, "unhandled option"
 
 
 #-------------------------------------------------------------------
 # Main
 #-------------------------------------------------------------------
 if __name__ == "__main__":
+    
+    # Set variables to default values
+    username = "default"
+    
+    # Parse command line options
+    cmd_opt_parse()
     
     # Ask arithmetic problems for configured number of times
     game = Game( NUM_PROBLEMS )
