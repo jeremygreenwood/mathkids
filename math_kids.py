@@ -96,7 +96,6 @@ class MathType:
         self.enabled = False
         
 
-# TODO can/should this be a subclass of MathType
 class BasicMath:
     '''
     Basic mathematics class, manages list of different types of math problems.
@@ -228,8 +227,7 @@ class BasicMath:
         try:
             self.answer = prob_type.func( self.num1, self.num2 )
         except:
-            # TODO consider logging this occurrence and the problem values
-            print red( "An internal error occurred" )
+            print red( "An internal error occurred while computing the answer, setting answer to 0." )
             self.answer = 0
             
         self.question_str = str( self.num1 ) + " " + prob_type.sym + " " + str( self.num2 ) + " = ?"
@@ -253,6 +251,7 @@ class Game:
     Math game class, keeps track of game statistics.
     '''
     def __init__( self, num_problems ):
+        self.active       = True
         self.num_problems = num_problems
         self.prob_cnt     = 0
         self.correct_cnt  = 0
@@ -265,11 +264,7 @@ class Game:
         # If user entered the stat command display how many problems are remaining
         if done == False:
             num_prob_remaining = self.num_problems - self.prob_cnt
-            if num_prob_remaining != 1:
-                rem_plural = "s"
-            else:
-                rem_plural = ""
-            print "You have " + str( num_prob_remaining ) + " problem" + rem_plural + " left to do."
+            print "Problems left: " + blue( str( num_prob_remaining ) )
         
         # Verify at least one problem has been done in order to display results
         if self.prob_cnt > 0:
@@ -277,11 +272,7 @@ class Game:
             # Calculate the percentage of correct problems
             percent = int( 100 * float( self.correct_cnt ) / float( self.prob_cnt ) )
             
-            print "Results:"
-            
-            sys.stdout.write( "    " )
-            
-            print str( self.correct_cnt ) + "/" + str( self.prob_cnt ) + " correct (" + str( percent ) + "%)"
+            print "Results:       " + blue( str( self.correct_cnt ) + "/" + str( self.prob_cnt ) + " correct (" + str( percent ) + "%)" )
     
             # If user is done print an encouraging message based on results
             if done == True:
@@ -332,7 +323,8 @@ def user_input_get( game ):
             
             # Check if the user wants to quit
             if ( user_input_str == "quit" ) or ( user_input_str == "exit" ):
-                game.stat_display( done = True )
+                game.active = False
+                return None
             # Check if the user wants a hint for the current problem
             elif user_input_str == "hint":
                 game.math.prob_hint()
@@ -416,8 +408,7 @@ if __name__ == "__main__":
     game = Game( NUM_PROBLEMS )
     
     # Ask arithmetic problems for configured number of times
-    # TODO consider using a game.active variable (flag) as we should close the log file from main before quitting
-    while game.prob_cnt < game.num_problems:
+    while ( game.prob_cnt < game.num_problems ) and game.active:
         
         # Set current math operation randomly
         problem = game.math.prob_type_get()
@@ -431,9 +422,9 @@ if __name__ == "__main__":
         # Get answer from user
         user_answer = user_input_get( game )
 
-        # If no user input, assume the exit command was executed
+        # If no user input, retry the loop- this should fail if the game is no longer active
         if user_answer == None:
-            break
+            continue
         
         # Print the calculated answer
         print "Answer: " + str( game.math.answer )
@@ -448,7 +439,17 @@ if __name__ == "__main__":
             result_correct = "n"
             
         # Write the problem to the log file
-        f.write( game.math.current_problem.sym + "," + str( game.math.num1 ) + "," + str( game.math.num2 ) + "," + str( user_answer ) + "," + result_correct + "\n" )
+        f.write \
+            ( 
+            game.math.current_problem.sym + "," + 
+            str( game.math.num1 )         + "," + 
+            str( game.math.num2 )         + "," + 
+            str( user_answer )            + "," + 
+            result_correct                + "\n"
+            )
+        
+        # Flush the data to disk
+        f.flush()
             
         print "---------------------------------------------------"
         
