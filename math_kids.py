@@ -8,23 +8,22 @@
 #           python setup.py build
 #           python setup.py install
 #
-# TODO add logging of each session (and print a summary of results) to time-stamped file in a directory based
-#      on user profile
-# TODO add usage statement
-# TODO add parameters:
-#      * restrict questions for add, sub, mult, div, random, or cycle through
+# TODO add configuration file in each user directory:
+#      * enable/disable each math problem type (add, sub, mult, div)
 #        consider option to configure for automatic selection based on the day of the week
-#      * how many math questions to perform
-# TODO add profiles to keep track of session logs and difficulty settings
-#      may want to forgo profiles in favor of multiple installations
+#      * number of problems to ask for each run of the program
+#      * maximum random integer value for each math problem type
+#      * enable/disable negative numbers
+#        if enabled, random number generation should be between (-max, max) as opposed to the normal (0, max)
+#      * enable/disable remainders for division problems
+# TODO consider adding parameters to override various configurations:
+#      * how many math questions to perform (override configuration)
+#      * others as needed
 # TODO add learning functionality:
+#      first need to implement database of problem history
 #      if a question has been answered correctly many times it should be omitted
 #      if too many questions are omitted then the maximum range value for the type of problem should be increased
-# TODO include configuration to enable negative numbers
-#      this should effect the random number generation for subraction to ensure the answer is non-negative
-#      if enabled, random number generation should be between (-max, max) as opposed to the normal (0, max)
 # TODO add commands:
-#       - should make the command or the first letter of the command active to run the command
 #       * help command to display a list of available commands and what they do
 
 
@@ -386,6 +385,9 @@ if __name__ == "__main__":
     # Set variables to default values
     username = "default"
     
+    # Parse command line options
+    cmd_opt_parse()
+    
     # Create user directory if it does not exist
     if not os.path.exists( username ):
         os.makedirs( username )
@@ -400,9 +402,6 @@ if __name__ == "__main__":
     
     # Write the log file header
     f.write( "type,num1,num2,answer,correct?\n" )
-    
-    # Parse command line options
-    cmd_opt_parse()
     
     # Create a game instance with specified number of problems
     game = Game( NUM_PROBLEMS )
