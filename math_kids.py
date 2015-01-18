@@ -32,7 +32,9 @@ import platform
 import random
 from random import randrange
 import sys
+import os
 import getopt
+import datetime
 
 # Try to import colorama for ANSI color if running Windows
 color_enable = True
@@ -82,7 +84,9 @@ else:
 # Classes
 #-------------------------------------------------------------------
 class MathType:
-    """Math problem type class, defines a type of math problem and its characteristics."""
+    '''
+    Math problem type class, defines a type of math problem and its characteristics.
+    '''
     def __init__( self, function, generate, hint, symbol, maximum ):
         self.func    = function
         self.gen     = generate
@@ -92,9 +96,10 @@ class MathType:
         self.enabled = False
         
 
-# TODO can/should this be a subclass of MathType
 class BasicMath:
-    """Basic mathematics class, manages list of different types of math problems."""
+    '''
+    Basic mathematics class, manages list of different types of math problems.
+    '''
 
     @staticmethod
     def pluralize( word, num ):
@@ -212,7 +217,9 @@ class BasicMath:
         self.prob_add( div )
         
     def prob_gen( self, prob_type ):
-        """Generate a math problem"""
+        '''
+        Generate a math problem
+        '''
         # Generate random numbers for math problem
         self.num1, self.num2 = prob_type.gen( prob_type.max )
         
@@ -220,15 +227,16 @@ class BasicMath:
         try:
             self.answer = prob_type.func( self.num1, self.num2 )
         except:
-            # TODO consider logging this occurrence and the problem values
-            print red( "An internal error occurred" )
+            print red( "An internal error occurred while computing the answer, setting answer to 0." )
             self.answer = 0
             
         self.question_str = str( self.num1 ) + " " + prob_type.sym + " " + str( self.num2 ) + " = ?"
         self.answer_str   = str( self.num1 ) + " " + prob_type.sym + " " + str( self.num2 ) + " = " + str( self.answer )
     
     def prob_hint( self ):
-        """Display a hint for the current math problem"""
+        '''
+        Display a hint for the current math problem
+        '''
         print self.current_problem.hint( self.num1, self.num2 )
             
     def prob_type_get( self ):
@@ -239,23 +247,24 @@ class BasicMath:
         
         
 class Game:
-    """Math game class, keeps track of game statistics."""
+    '''    
+    Math game class, keeps track of game statistics.
+    '''
     def __init__( self, num_problems ):
+        self.active       = True
         self.num_problems = num_problems
         self.prob_cnt     = 0
         self.correct_cnt  = 0
         self.math         = BasicMath()
         
     def stat_display( self, done ):
-        """Display statistics"""
+        '''
+        Display statistics
+        '''
         # If user entered the stat command display how many problems are remaining
         if done == False:
             num_prob_remaining = self.num_problems - self.prob_cnt
-            if num_prob_remaining != 1:
-                rem_plural = "s"
-            else:
-                rem_plural = ""
-            print "You have " + str( num_prob_remaining ) + " problem" + rem_plural + " left to do."
+            print "Problems left: " + blue( str( num_prob_remaining ) )
         
         # Verify at least one problem has been done in order to display results
         if self.prob_cnt > 0:
@@ -263,11 +272,7 @@ class Game:
             # Calculate the percentage of correct problems
             percent = int( 100 * float( self.correct_cnt ) / float( self.prob_cnt ) )
             
-            print "Results:"
-            
-            sys.stdout.write( "    " )
-            
-            print str( self.correct_cnt ) + "/" + str( self.prob_cnt ) + " correct (" + str( percent ) + "%)"
+            print "Results:       " + blue( str( self.correct_cnt ) + "/" + str( self.prob_cnt ) + " correct (" + str( percent ) + "%)" )
     
             # If user is done print an encouraging message based on results
             if done == True:
@@ -309,13 +314,17 @@ def blue( text ):
     return BLUE + text + OFF
     
 def user_input_get( game ):
+    '''
+    Get user input and process for commands before returning as number
+    '''
     while True:
         try:
             user_input_str = raw_input( "Enter answer: " )
             
             # Check if the user wants to quit
             if ( user_input_str == "quit" ) or ( user_input_str == "exit" ):
-                game.stat_display( done = True )
+                game.active = False
+                return None
             # Check if the user wants a hint for the current problem
             elif user_input_str == "hint":
                 game.math.prob_hint()
@@ -339,6 +348,9 @@ def usage():
     print " u <user>    default         Set the user profile to use."
         
 def cmd_opt_parse():
+    '''
+    Parse for command line options
+    '''
     global username
     
     opt_list = "hu:"
@@ -358,7 +370,13 @@ def cmd_opt_parse():
             username = a
         else:
             assert False, "unhandled option"
-
+            
+def log_filename_gen():
+    '''
+    Return datetime log filename similar to ISO 8601 format
+    '''
+    return datetime.datetime.now().strftime( "%Y-%m-%dT%H_%M_%S.log" )
+    
 
 #-------------------------------------------------------------------
 # Main
@@ -368,13 +386,29 @@ if __name__ == "__main__":
     # Set variables to default values
     username = "default"
     
+    # Create user directory if it does not exist
+    if not os.path.exists( username ):
+        os.makedirs( username )
+    
+    # Set log file name name and path
+    log_file = username + "/" + log_filename_gen()
+    
+    print log_file
+    
+    # Create the log file and open for writing
+    f = open( log_file, 'w+' )
+    
+    # Write the log file header
+    f.write( "type,num1,num2,answer,correct?\n" )
+    
     # Parse command line options
     cmd_opt_parse()
     
-    # Ask arithmetic problems for configured number of times
+    # Create a game instance with specified number of problems
     game = Game( NUM_PROBLEMS )
     
-    while game.prob_cnt < game.num_problems:
+    # Ask arithmetic problems for configured number of times
+    while ( game.prob_cnt < game.num_problems ) and game.active:
         
         # Set current math operation randomly
         problem = game.math.prob_type_get()
@@ -388,9 +422,9 @@ if __name__ == "__main__":
         # Get answer from user
         user_answer = user_input_get( game )
 
-        # If no user input, assume the exit command was executed
+        # If no user input, retry the loop- this should fail if the game is no longer active
         if user_answer == None:
-            break
+            continue
         
         # Print the calculated answer
         print "Answer: " + str( game.math.answer )
@@ -399,11 +433,30 @@ if __name__ == "__main__":
         if user_answer == game.math.answer:
             print green( "Correct" )
             game.correct_cnt += 1
+            result_correct = "y"
         else:
             print red( "Not correct" )
+            result_correct = "n"
+            
+        # Write the problem to the log file
+        f.write \
+            ( 
+            game.math.current_problem.sym + "," + 
+            str( game.math.num1 )         + "," + 
+            str( game.math.num2 )         + "," + 
+            str( user_answer )            + "," + 
+            result_correct                + "\n"
+            )
+        
+        # Flush the data to disk
+        f.flush()
             
         print "---------------------------------------------------"
         
         game.prob_cnt += 1
         
+    # Close the log file
+    f.close()
+    
+    # Display game results
     game.stat_display( done = True )
