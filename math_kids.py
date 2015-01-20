@@ -34,6 +34,7 @@ import sys
 import os
 import getopt
 import datetime
+import ConfigParser
 
 # Try to import colorama for ANSI color if running Windows
 color_enable = True
@@ -67,7 +68,11 @@ else:
     BLUE   = ''
     OFF    = ''
 
-# Configuration defaults
+# Directory and filenames
+USER_DIR_DFLT = "default"
+CFG_FILE_DFLT = "config.ini"
+
+# Configuration file defaults
 NUM_PROBLEMS_DFLT     = 10
 MAX_INT_ADD_DFLT      = 16
 MAX_INT_SUBTRACT_DFLT = 8
@@ -346,7 +351,7 @@ def cmd_opt_parse():
     '''
     Parse for command line options
     '''
-    global username
+    global username_dir
     
     opt_list = "hu:"
     try:
@@ -362,7 +367,7 @@ def cmd_opt_parse():
             usage()
             quit()
         elif o == "-u":
-            username = a
+            username_dir = a
         else:
             assert False, "unhandled option"
             
@@ -379,7 +384,8 @@ def log_filename_gen():
 if __name__ == "__main__":
     
     # Set variables to default values
-    username = "default"
+    username_dir = USER_DIR_DFLT
+    cfg_file     = CFG_FILE_DFLT
     
     # Set default configurations
     # NOTE: most of these are currently referenced as globals in the class BasicMath
@@ -394,21 +400,42 @@ if __name__ == "__main__":
     cfg_divide_enable       = True
     cfg_negative_num_enable = False
     
-    # Read configurations from ini file
-    # TODO
-    
     # Parse command line options
+    # NOTE: this function assigns to global variables set above inside __main__
     cmd_opt_parse()
     
     # Create user directory if it does not exist
-    if not os.path.exists( username ):
-        os.makedirs( username )
+    if not os.path.exists( username_dir ):
+        os.makedirs( username_dir )
+        
+    # Set config file path
+    config_file_path = username_dir + "/" + cfg_file
+    
+    # Create config parser instance
+    config = ConfigParser.ConfigParser()
+        
+    # Check if config file exists
+    # TODO set additional configuration parameters
+    if not os.path.exists( config_file_path ):
+        # Create config file contents
+        config.set( 'DEFAULT', 'number_of_problems', str( cfg_number_of_problems ) )
+        
+        # Write the config file
+        with open( config_file_path, 'w+' ) as configfile:
+            config.write( configfile )
+                        
+        print "Wrote " + str( cfg_number_of_problems ) + " to config file."
+    else:
+        # Read the config file
+        config.read( config_file_path )
+        cfg_number_of_problems = int( config.get( 'DEFAULT', 'number_of_problems' ) )
+        print "Read " + str( cfg_number_of_problems ) + " from config file."
     
     # Set log file name name and path
-    log_file = username + "/" + log_filename_gen()
+    log_file_path = username_dir + "/" + log_filename_gen()
     
     # Create the log file and open for writing
-    f = open( log_file, 'w+' )
+    f = open( log_file_path, 'w+' )
     
     # Write the log file header
     f.write( "type,num1,num2,answer,correct?\n" )
