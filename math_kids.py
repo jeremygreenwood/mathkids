@@ -82,16 +82,17 @@ class BasicMath:
     '''
     Basic mathematics class, manages list of different types of math problems.
     '''
+    # Subclass
     class MathType:
         '''
-        Math problem type class, defines a type of math problem and its characteristics.
+        Math problem type class, defines a type of math problem and its characteristics. This is used similar to a C struct.
         '''
         def __init__( self, function, generate, hint, symbol, maximum ):
-            self.func    = function
-            self.gen     = generate
-            self.hint    = hint
-            self.sym     = symbol
-            self.max     = maximum
+            self.func = function
+            self.gen  = generate
+            self.hint = hint
+            self.sym  = symbol
+            self.max  = maximum
         
     def __init__( self ):
         self.problem_list = []
@@ -381,6 +382,7 @@ if __name__ == "__main__":
     username = "default"
     
     # Set default configurations
+    # NOTE: most of these are currently referenced as globals in the class BasicMath
     cfg_number_of_problems  = NUM_PROBLEMS_DFLT
     cfg_max_int_add         = MAX_INT_ADD_DFLT
     cfg_max_int_subtract    = MAX_INT_SUBTRACT_DFLT
@@ -445,7 +447,7 @@ if __name__ == "__main__":
             print red( "Not correct" )
             result_correct = "n"
             
-        # Write the problem to the log file
+        # Write the problem, answer, and result to the log file
         f.write \
             ( 
             game.math.current_problem.sym + "," + 
