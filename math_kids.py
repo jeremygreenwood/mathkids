@@ -78,27 +78,68 @@ MAX_INT_DIVIDE_DFLT   = 2
 #-------------------------------------------------------------------
 # Classes
 #-------------------------------------------------------------------
-# TODO move as subclass of BasicMath
-class MathType:
-    '''
-    Math problem type class, defines a type of math problem and its characteristics.
-    '''
-    def __init__( self, function, generate, hint, symbol, maximum ):
-        self.func    = function
-        self.gen     = generate
-        self.hint    = hint
-        self.sym     = symbol
-        self.max     = maximum
-        self.enabled = False
-        
-# TODO create MathConfigType class as a simple way to instantiate a game with various math configs
-        
-
 class BasicMath:
     '''
     Basic mathematics class, manages list of different types of math problems.
     '''
-    # TODO consider moving static members to end of class
+    class MathType:
+        '''
+        Math problem type class, defines a type of math problem and its characteristics.
+        '''
+        def __init__( self, function, generate, hint, symbol, maximum ):
+            self.func    = function
+            self.gen     = generate
+            self.hint    = hint
+            self.sym     = symbol
+            self.max     = maximum
+        
+    def __init__( self ):
+        self.problem_list = []
+        
+        # Setup/add various math problem types
+        # TODO only setup enabled operators
+        self.prob_add( BasicMath.MathType( BasicMath.add_func, BasicMath.add_gen_numbers, BasicMath.add_hint, "+", cfg_max_int_add ) )
+
+        self.prob_add( BasicMath.MathType( BasicMath.sub_func, BasicMath.sub_gen_numbers, BasicMath.sub_hint, "-", cfg_max_int_subtract ) )
+        
+        self.prob_add( BasicMath.MathType( BasicMath.mul_func, BasicMath.mul_gen_numbers, BasicMath.mul_hint, "*", cfg_max_int_multiply ) )
+        
+        self.prob_add( BasicMath.MathType( BasicMath.div_func, BasicMath.div_gen_numbers, BasicMath.div_hint, "/", cfg_max_int_divide ) )
+        
+        
+    def prob_add( self, problem ):
+        self.problem_list.append( problem )
+        
+    def prob_gen( self, prob_type ):
+        '''
+        Generate a math problem
+        '''
+        # Generate random numbers for math problem
+        self.num1, self.num2 = prob_type.gen( prob_type.max )
+        
+        # Compute the answer
+        try:
+            self.answer = prob_type.func( self.num1, self.num2 )
+        except:
+            print red( "An internal error occurred while computing the answer, setting answer to 0." )
+            self.answer = 0
+            
+        self.question_str = str( self.num1 ) + " " + prob_type.sym + " " + str( self.num2 ) + " = ?"
+        self.answer_str   = str( self.num1 ) + " " + prob_type.sym + " " + str( self.num2 ) + " = " + str( self.answer )
+    
+    def prob_hint( self ):
+        '''
+        Display a hint for the current math problem
+        '''
+        print self.current_problem.hint( self.num1, self.num2 )
+            
+    def prob_type_get( self ):
+        '''
+        Returns a random math problem type that is enabled
+        '''
+        self.current_problem = random.choice( self.problem_list )
+        return self.current_problem
+        
     @staticmethod
     def pluralize( word, num ):
         if num != 1:
@@ -196,54 +237,6 @@ class BasicMath:
         rhs_items = BasicMath.pluralize( rhs_item_type, rhs )
             
         return "You have " + str( lhs ) + " " + lhs_items + " and need to split up into " + str( rhs ) + " equal " + rhs_items + ". How many " + lhs_item_type + "s in each " + rhs_item_type + "?"
-
-    def prob_add( self, problem ):
-        self.problem_list.append( problem )
-        
-    def __init__( self ):
-        self.problem_list = []
-        
-        # Set various operations
-        add = MathType( BasicMath.add_func, BasicMath.add_gen_numbers, BasicMath.add_hint, "+", cfg_max_int_add      )
-        sub = MathType( BasicMath.sub_func, BasicMath.sub_gen_numbers, BasicMath.sub_hint, "-", cfg_max_int_subtract )
-        mul = MathType( BasicMath.mul_func, BasicMath.mul_gen_numbers, BasicMath.mul_hint, "*", cfg_max_int_multiply )
-        div = MathType( BasicMath.div_func, BasicMath.div_gen_numbers, BasicMath.div_hint, "/", cfg_max_int_divide   )
-        
-        self.prob_add( add )
-        self.prob_add( sub )
-        self.prob_add( mul )
-        self.prob_add( div )
-        
-    def prob_gen( self, prob_type ):
-        '''
-        Generate a math problem
-        '''
-        # Generate random numbers for math problem
-        self.num1, self.num2 = prob_type.gen( prob_type.max )
-        
-        # Compute the answer
-        try:
-            self.answer = prob_type.func( self.num1, self.num2 )
-        except:
-            print red( "An internal error occurred while computing the answer, setting answer to 0." )
-            self.answer = 0
-            
-        self.question_str = str( self.num1 ) + " " + prob_type.sym + " " + str( self.num2 ) + " = ?"
-        self.answer_str   = str( self.num1 ) + " " + prob_type.sym + " " + str( self.num2 ) + " = " + str( self.answer )
-    
-    def prob_hint( self ):
-        '''
-        Display a hint for the current math problem
-        '''
-        print self.current_problem.hint( self.num1, self.num2 )
-            
-    def prob_type_get( self ):
-        '''
-        Returns a random math problem type that is enabled
-        '''
-        # TODO this should cross reference with enabled variable of each MathType (unless problem list is changed to only contain enabled problems)
-        self.current_problem = random.choice( self.problem_list )
-        return self.current_problem
         
         
 class Game:
@@ -251,11 +244,11 @@ class Game:
     Math game class, keeps track of game statistics.
     '''
     def __init__( self, num_problems ):
-        self.active       = True
         self.num_problems = num_problems
         self.prob_cnt     = 0
         self.correct_cnt  = 0
         self.math         = BasicMath()
+        self.active       = True
         
     def stat_display( self, done ):
         '''
@@ -315,7 +308,8 @@ def blue( text ):
     
 def user_input_get( game ):
     '''
-    Get user input and process for commands before returning as number
+    Get user input. First checks if the user entered a command to execute, otherwise attempts to return
+    integer value to the calling application
     '''
     while True:
         try:
