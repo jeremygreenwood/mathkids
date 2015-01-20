@@ -8,11 +8,8 @@
 #           python setup.py build
 #           python setup.py install
 #
-# TODO add configuration file in each user directory:
-#      * enable/disable each math problem type (add, sub, mult, div)
-#        consider option to configure for automatic selection based on the day of the week
-#      * number of problems to ask for each run of the program
-#      * maximum random integer value for each math problem type
+# TODO add configurations:
+#      * consider option to configure problem type for automatic selection based on the day of the week
 #      * enable/disable negative numbers
 #        if enabled, random number generation should be between (-max, max) as opposed to the normal (0, max)
 #      * enable/disable remainders for division problems
@@ -34,6 +31,7 @@ import sys
 import os
 import getopt
 import datetime
+import ConfigParser
 
 # Try to import colorama for ANSI color if running Windows
 color_enable = True
@@ -50,21 +48,10 @@ if platform.system() == "Windows":
         pass
 
 
-# Set configurations
-# TODO read configs from a settings file, and use a default if the settings file DNE
-NUM_PROBLEMS     = 10
-
-MAX_INT_ADD      = 16
-MAX_INT_SUBTRACT = 8
-MAX_INT_MULTIPLY = 4
-MAX_INT_DIVIDE   = 2
-
-negative_num_enable = False
-
-
 #-------------------------------------------------------------------
 # Constants
 #-------------------------------------------------------------------
+# Colors
 if color_enable == True:
     RED    = '\033[31m'
     GREEN  = '\033[32m'
@@ -78,28 +65,84 @@ else:
     BLUE   = ''
     OFF    = ''
 
+# Directory and filenames
+USER_DIR_DFLT = "default"
+CFG_FILE_DFLT = "config.ini"
+
+# Configuration file defaults
+NUM_PROBLEMS_DFLT     = 10
+MAX_INT_ADD_DFLT      = 16
+MAX_INT_SUBTRACT_DFLT = 8
+MAX_INT_MULTIPLY_DFLT = 4
+MAX_INT_DIVIDE_DFLT   = 2
+
 
 #-------------------------------------------------------------------
 # Classes
 #-------------------------------------------------------------------
-class MathType:
-    '''
-    Math problem type class, defines a type of math problem and its characteristics.
-    '''
-    def __init__( self, function, generate, hint, symbol, maximum ):
-        self.func    = function
-        self.gen     = generate
-        self.hint    = hint
-        self.sym     = symbol
-        self.max     = maximum
-        self.enabled = False
-        
-
 class BasicMath:
     '''
     Basic mathematics class, manages list of different types of math problems.
     '''
+    # Subclass
+    class MathType:
+        '''
+        Math problem type class, defines a type of math problem and its characteristics. This is used similar to a C struct.
+        '''
+        def __init__( self, function, generate, hint, symbol, maximum ):
+            self.func = function
+            self.gen  = generate
+            self.hint = hint
+            self.sym  = symbol
+            self.max  = maximum
+        
+    def __init__( self ):
+        self.problem_list = []
+        
+        # Setup/add various math problem types
+        # TODO only setup enabled operators
+        self.prob_add( BasicMath.MathType( BasicMath.add_func, BasicMath.add_gen_numbers, BasicMath.add_hint, "+", cfg_max_int_add ) )
 
+        self.prob_add( BasicMath.MathType( BasicMath.sub_func, BasicMath.sub_gen_numbers, BasicMath.sub_hint, "-", cfg_max_int_subtract ) )
+        
+        self.prob_add( BasicMath.MathType( BasicMath.mul_func, BasicMath.mul_gen_numbers, BasicMath.mul_hint, "*", cfg_max_int_multiply ) )
+        
+        self.prob_add( BasicMath.MathType( BasicMath.div_func, BasicMath.div_gen_numbers, BasicMath.div_hint, "/", cfg_max_int_divide ) )
+        
+        
+    def prob_add( self, problem ):
+        self.problem_list.append( problem )
+        
+    def prob_gen( self, prob_type ):
+        '''
+        Generate a math problem
+        '''
+        # Generate random numbers for math problem
+        self.num1, self.num2 = prob_type.gen( prob_type.max )
+        
+        # Compute the answer
+        try:
+            self.answer = prob_type.func( self.num1, self.num2 )
+        except:
+            print red( "An internal error occurred while computing the answer, setting answer to 0." )
+            self.answer = 0
+            
+        self.question_str = str( self.num1 ) + " " + prob_type.sym + " " + str( self.num2 ) + " = ?"
+        self.answer_str   = str( self.num1 ) + " " + prob_type.sym + " " + str( self.num2 ) + " = " + str( self.answer )
+    
+    def prob_hint( self ):
+        '''
+        Display a hint for the current math problem
+        '''
+        print self.current_problem.hint( self.num1, self.num2 )
+            
+    def prob_type_get( self ):
+        '''
+        Returns a random math problem type that is enabled
+        '''
+        self.current_problem = random.choice( self.problem_list )
+        return self.current_problem
+        
     @staticmethod
     def pluralize( word, num ):
         if num != 1:
@@ -197,52 +240,6 @@ class BasicMath:
         rhs_items = BasicMath.pluralize( rhs_item_type, rhs )
             
         return "You have " + str( lhs ) + " " + lhs_items + " and need to split up into " + str( rhs ) + " equal " + rhs_items + ". How many " + lhs_item_type + "s in each " + rhs_item_type + "?"
-
-    def prob_add( self, problem ):
-        self.problem_list.append( problem )
-        
-    def __init__( self ):
-        self.problem_list = []
-        
-        # Set various operations
-        add = MathType( BasicMath.add_func, BasicMath.add_gen_numbers, BasicMath.add_hint, "+", MAX_INT_ADD      )
-        sub = MathType( BasicMath.sub_func, BasicMath.sub_gen_numbers, BasicMath.sub_hint, "-", MAX_INT_SUBTRACT )
-        mul = MathType( BasicMath.mul_func, BasicMath.mul_gen_numbers, BasicMath.mul_hint, "*", MAX_INT_MULTIPLY )
-        div = MathType( BasicMath.div_func, BasicMath.div_gen_numbers, BasicMath.div_hint, "/", MAX_INT_DIVIDE   )
-        
-        self.prob_add( add )
-        self.prob_add( sub )
-        self.prob_add( mul )
-        self.prob_add( div )
-        
-    def prob_gen( self, prob_type ):
-        '''
-        Generate a math problem
-        '''
-        # Generate random numbers for math problem
-        self.num1, self.num2 = prob_type.gen( prob_type.max )
-        
-        # Compute the answer
-        try:
-            self.answer = prob_type.func( self.num1, self.num2 )
-        except:
-            print red( "An internal error occurred while computing the answer, setting answer to 0." )
-            self.answer = 0
-            
-        self.question_str = str( self.num1 ) + " " + prob_type.sym + " " + str( self.num2 ) + " = ?"
-        self.answer_str   = str( self.num1 ) + " " + prob_type.sym + " " + str( self.num2 ) + " = " + str( self.answer )
-    
-    def prob_hint( self ):
-        '''
-        Display a hint for the current math problem
-        '''
-        print self.current_problem.hint( self.num1, self.num2 )
-            
-    def prob_type_get( self ):
-        """Returns a random math problem type that is enabled"""
-        # TODO this should cross reference with enabled variable of each MathType (unless problem list is changed to only contain enabled problems)
-        self.current_problem = random.choice( self.problem_list )
-        return self.current_problem
         
         
 class Game:
@@ -250,11 +247,11 @@ class Game:
     Math game class, keeps track of game statistics.
     '''
     def __init__( self, num_problems ):
-        self.active       = True
         self.num_problems = num_problems
         self.prob_cnt     = 0
         self.correct_cnt  = 0
         self.math         = BasicMath()
+        self.active       = True
         
     def stat_display( self, done ):
         '''
@@ -314,7 +311,8 @@ def blue( text ):
     
 def user_input_get( game ):
     '''
-    Get user input and process for commands before returning as number
+    Get user input. First checks if the user entered a command to execute, otherwise attempts to return
+    integer value to the calling application
     '''
     while True:
         try:
@@ -329,7 +327,7 @@ def user_input_get( game ):
                 game.math.prob_hint()
                 continue
             # Check if the user wants to see statistics for the current game
-            elif ( user_input_str == "stat" ) or ( user_input_str == "check" ):
+            elif ( user_input_str == "stat" ) or ( user_input_str == "check" ) or ( user_input_str == "show" ):
                 game.stat_display( done = False )
                 continue
                 
@@ -350,7 +348,7 @@ def cmd_opt_parse():
     '''
     Parse for command line options
     '''
-    global username
+    global username_dir
     
     opt_list = "hu:"
     try:
@@ -366,7 +364,7 @@ def cmd_opt_parse():
             usage()
             quit()
         elif o == "-u":
-            username = a
+            username_dir = a
         else:
             assert False, "unhandled option"
             
@@ -383,28 +381,77 @@ def log_filename_gen():
 if __name__ == "__main__":
     
     # Set variables to default values
-    username = "default"
+    username_dir = USER_DIR_DFLT
+    cfg_file     = CFG_FILE_DFLT
+    
+    # Set default configurations
+    # NOTE: most of these are currently referenced as globals in the class BasicMath
+    cfg_number_of_problems  = NUM_PROBLEMS_DFLT
+    cfg_max_int_add         = MAX_INT_ADD_DFLT
+    cfg_max_int_subtract    = MAX_INT_SUBTRACT_DFLT
+    cfg_max_int_multiply    = MAX_INT_MULTIPLY_DFLT
+    cfg_max_int_divide      = MAX_INT_DIVIDE_DFLT
+    cfg_add_enable          = True
+    cfg_subtract_enable     = True
+    cfg_multiply_enable     = True
+    cfg_divide_enable       = True
+    # Configs to implement
+    cfg_negative_num_enable = False
     
     # Parse command line options
+    # NOTE: this function assigns to global variables set above inside __main__
     cmd_opt_parse()
     
     # Create user directory if it does not exist
-    if not os.path.exists( username ):
-        os.makedirs( username )
+    if not os.path.exists( username_dir ):
+        os.makedirs( username_dir )
+        
+    # Set config file path
+    config_file_path = username_dir + "/" + cfg_file
+    
+    # Create config parser instance
+    config = ConfigParser.ConfigParser()
+        
+    # Check if config file exists
+    if not os.path.exists( config_file_path ):
+        # Create config file contents
+        config.set( 'DEFAULT', 'number_of_problems', str( cfg_number_of_problems ) )
+        config.set( 'DEFAULT', 'add_enable',         str( cfg_add_enable ) )
+        config.set( 'DEFAULT', 'subtract_enable',    str( cfg_subtract_enable ) )
+        config.set( 'DEFAULT', 'multiply_enable',    str( cfg_multiply_enable ) )
+        config.set( 'DEFAULT', 'divide_enable',      str( cfg_divide_enable ) )
+        config.set( 'DEFAULT', 'max_int_add',        str( cfg_max_int_add ) )
+        config.set( 'DEFAULT', 'max_int_subtract',   str( cfg_max_int_subtract ) )
+        config.set( 'DEFAULT', 'max_int_multiply',   str( cfg_max_int_multiply ) )
+        config.set( 'DEFAULT', 'max_int_divide',     str( cfg_max_int_divide ) )
+        
+        # Write the config file
+        with open( config_file_path, 'w+' ) as configfile:
+            config.write( configfile )
+    else:
+        # Read the config file
+        config.read( config_file_path )
+        cfg_number_of_problems = int( config.get( 'DEFAULT', 'number_of_problems' ) )
+        cfg_add_enable = bool( config.get( 'DEFAULT', 'add_enable' ) )
+        cfg_subtract_enable = bool( config.get( 'DEFAULT', 'subtract_enable' ) )
+        cfg_multiply_enable = bool( config.get( 'DEFAULT', 'multiply_enable' ) )
+        cfg_divide_enable = bool( config.get( 'DEFAULT', 'divide_enable' ) )
+        cfg_max_int_add = int( config.get( 'DEFAULT', 'max_int_add' ) )
+        cfg_max_int_subtract = int( config.get( 'DEFAULT', 'max_int_subtract' ) )
+        cfg_max_int_multiply = int( config.get( 'DEFAULT', 'max_int_multiply' ) )
+        cfg_max_int_divide = int( config.get( 'DEFAULT', 'max_int_divide' ) )
     
     # Set log file name name and path
-    log_file = username + "/" + log_filename_gen()
-    
-    print log_file
+    log_file_path = username_dir + "/" + log_filename_gen()
     
     # Create the log file and open for writing
-    f = open( log_file, 'w+' )
+    f = open( log_file_path, 'w+' )
     
     # Write the log file header
     f.write( "type,num1,num2,answer,correct?\n" )
     
     # Create a game instance with specified number of problems
-    game = Game( NUM_PROBLEMS )
+    game = Game( cfg_number_of_problems )
     
     # Ask arithmetic problems for configured number of times
     while ( game.prob_cnt < game.num_problems ) and game.active:
@@ -437,7 +484,7 @@ if __name__ == "__main__":
             print red( "Not correct" )
             result_correct = "n"
             
-        # Write the problem to the log file
+        # Write the problem, answer, and result to the log file
         f.write \
             ( 
             game.math.current_problem.sym + "," + 
