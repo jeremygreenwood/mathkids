@@ -50,21 +50,10 @@ if platform.system() == "Windows":
         pass
 
 
-# Set configurations
-# TODO read configs from a settings file, and use a default if the settings file DNE
-NUM_PROBLEMS     = 10
-
-MAX_INT_ADD      = 16
-MAX_INT_SUBTRACT = 8
-MAX_INT_MULTIPLY = 4
-MAX_INT_DIVIDE   = 2
-
-negative_num_enable = False
-
-
 #-------------------------------------------------------------------
 # Constants
 #-------------------------------------------------------------------
+# Colors
 if color_enable == True:
     RED    = '\033[31m'
     GREEN  = '\033[32m'
@@ -78,10 +67,18 @@ else:
     BLUE   = ''
     OFF    = ''
 
+# Configuration defaults
+NUM_PROBLEMS_DFLT     = 10
+MAX_INT_ADD_DFLT      = 16
+MAX_INT_SUBTRACT_DFLT = 8
+MAX_INT_MULTIPLY_DFLT = 4
+MAX_INT_DIVIDE_DFLT   = 2
+
 
 #-------------------------------------------------------------------
 # Classes
 #-------------------------------------------------------------------
+# TODO move as subclass of BasicMath
 class MathType:
     '''
     Math problem type class, defines a type of math problem and its characteristics.
@@ -94,12 +91,14 @@ class MathType:
         self.max     = maximum
         self.enabled = False
         
+# TODO create MathConfigType class as a simple way to instantiate a game with various math configs
+        
 
 class BasicMath:
     '''
     Basic mathematics class, manages list of different types of math problems.
     '''
-
+    # TODO consider moving static members to end of class
     @staticmethod
     def pluralize( word, num ):
         if num != 1:
@@ -205,10 +204,10 @@ class BasicMath:
         self.problem_list = []
         
         # Set various operations
-        add = MathType( BasicMath.add_func, BasicMath.add_gen_numbers, BasicMath.add_hint, "+", MAX_INT_ADD      )
-        sub = MathType( BasicMath.sub_func, BasicMath.sub_gen_numbers, BasicMath.sub_hint, "-", MAX_INT_SUBTRACT )
-        mul = MathType( BasicMath.mul_func, BasicMath.mul_gen_numbers, BasicMath.mul_hint, "*", MAX_INT_MULTIPLY )
-        div = MathType( BasicMath.div_func, BasicMath.div_gen_numbers, BasicMath.div_hint, "/", MAX_INT_DIVIDE   )
+        add = MathType( BasicMath.add_func, BasicMath.add_gen_numbers, BasicMath.add_hint, "+", cfg_max_int_add      )
+        sub = MathType( BasicMath.sub_func, BasicMath.sub_gen_numbers, BasicMath.sub_hint, "-", cfg_max_int_subtract )
+        mul = MathType( BasicMath.mul_func, BasicMath.mul_gen_numbers, BasicMath.mul_hint, "*", cfg_max_int_multiply )
+        div = MathType( BasicMath.div_func, BasicMath.div_gen_numbers, BasicMath.div_hint, "/", cfg_max_int_divide   )
         
         self.prob_add( add )
         self.prob_add( sub )
@@ -239,7 +238,9 @@ class BasicMath:
         print self.current_problem.hint( self.num1, self.num2 )
             
     def prob_type_get( self ):
-        """Returns a random math problem type that is enabled"""
+        '''
+        Returns a random math problem type that is enabled
+        '''
         # TODO this should cross reference with enabled variable of each MathType (unless problem list is changed to only contain enabled problems)
         self.current_problem = random.choice( self.problem_list )
         return self.current_problem
@@ -329,7 +330,7 @@ def user_input_get( game ):
                 game.math.prob_hint()
                 continue
             # Check if the user wants to see statistics for the current game
-            elif ( user_input_str == "stat" ) or ( user_input_str == "check" ):
+            elif ( user_input_str == "stat" ) or ( user_input_str == "check" ) or ( user_input_str == "show" ):
                 game.stat_display( done = False )
                 continue
                 
@@ -385,6 +386,21 @@ if __name__ == "__main__":
     # Set variables to default values
     username = "default"
     
+    # Set default configurations
+    cfg_number_of_problems  = NUM_PROBLEMS_DFLT
+    cfg_max_int_add         = MAX_INT_ADD_DFLT
+    cfg_max_int_subtract    = MAX_INT_SUBTRACT_DFLT
+    cfg_max_int_multiply    = MAX_INT_MULTIPLY_DFLT
+    cfg_max_int_divide      = MAX_INT_DIVIDE_DFLT
+    cfg_add_enable          = True
+    cfg_subtract_enable     = True
+    cfg_multiply_enable     = True
+    cfg_divide_enable       = True
+    cfg_negative_num_enable = False
+    
+    # Read configurations from ini file
+    # TODO
+    
     # Parse command line options
     cmd_opt_parse()
     
@@ -395,8 +411,6 @@ if __name__ == "__main__":
     # Set log file name name and path
     log_file = username + "/" + log_filename_gen()
     
-    print log_file
-    
     # Create the log file and open for writing
     f = open( log_file, 'w+' )
     
@@ -404,7 +418,7 @@ if __name__ == "__main__":
     f.write( "type,num1,num2,answer,correct?\n" )
     
     # Create a game instance with specified number of problems
-    game = Game( NUM_PROBLEMS )
+    game = Game( cfg_number_of_problems )
     
     # Ask arithmetic problems for configured number of times
     while ( game.prob_cnt < game.num_problems ) and game.active:
