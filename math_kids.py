@@ -8,11 +8,8 @@
 #           python setup.py build
 #           python setup.py install
 #
-# TODO add configuration file in each user directory:
-#      * enable/disable each math problem type (add, sub, mult, div)
-#        consider option to configure for automatic selection based on the day of the week
-#      * number of problems to ask for each run of the program
-#      * maximum random integer value for each math problem type
+# TODO add configurations:
+#      * consider option to configure problem type for automatic selection based on the day of the week
 #      * enable/disable negative numbers
 #        if enabled, random number generation should be between (-max, max) as opposed to the normal (0, max)
 #      * enable/disable remainders for division problems
@@ -398,6 +395,7 @@ if __name__ == "__main__":
     cfg_subtract_enable     = True
     cfg_multiply_enable     = True
     cfg_divide_enable       = True
+    # Configs to implement
     cfg_negative_num_enable = False
     
     # Parse command line options
@@ -415,21 +413,33 @@ if __name__ == "__main__":
     config = ConfigParser.ConfigParser()
         
     # Check if config file exists
-    # TODO set additional configuration parameters
     if not os.path.exists( config_file_path ):
         # Create config file contents
         config.set( 'DEFAULT', 'number_of_problems', str( cfg_number_of_problems ) )
+        config.set( 'DEFAULT', 'add_enable',         str( cfg_add_enable ) )
+        config.set( 'DEFAULT', 'subtract_enable',    str( cfg_subtract_enable ) )
+        config.set( 'DEFAULT', 'multiply_enable',    str( cfg_multiply_enable ) )
+        config.set( 'DEFAULT', 'divide_enable',      str( cfg_divide_enable ) )
+        config.set( 'DEFAULT', 'max_int_add',        str( cfg_max_int_add ) )
+        config.set( 'DEFAULT', 'max_int_subtract',   str( cfg_max_int_subtract ) )
+        config.set( 'DEFAULT', 'max_int_multiply',   str( cfg_max_int_multiply ) )
+        config.set( 'DEFAULT', 'max_int_divide',     str( cfg_max_int_divide ) )
         
         # Write the config file
         with open( config_file_path, 'w+' ) as configfile:
             config.write( configfile )
-                        
-        print "Wrote " + str( cfg_number_of_problems ) + " to config file."
     else:
         # Read the config file
         config.read( config_file_path )
         cfg_number_of_problems = int( config.get( 'DEFAULT', 'number_of_problems' ) )
-        print "Read " + str( cfg_number_of_problems ) + " from config file."
+        cfg_add_enable = bool( config.get( 'DEFAULT', 'add_enable' ) )
+        cfg_subtract_enable = bool( config.get( 'DEFAULT', 'subtract_enable' ) )
+        cfg_multiply_enable = bool( config.get( 'DEFAULT', 'multiply_enable' ) )
+        cfg_divide_enable = bool( config.get( 'DEFAULT', 'divide_enable' ) )
+        cfg_max_int_add = int( config.get( 'DEFAULT', 'max_int_add' ) )
+        cfg_max_int_subtract = int( config.get( 'DEFAULT', 'max_int_subtract' ) )
+        cfg_max_int_multiply = int( config.get( 'DEFAULT', 'max_int_multiply' ) )
+        cfg_max_int_divide = int( config.get( 'DEFAULT', 'max_int_divide' ) )
     
     # Set log file name name and path
     log_file_path = username_dir + "/" + log_filename_gen()
