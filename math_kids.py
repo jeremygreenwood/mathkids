@@ -1,28 +1,4 @@
 #!/usr/bin/python
-#
-# Notes:
-#   To enable colored output on windows:
-#       1. Download colorama from https://pypi.python.org/packages/source/c/colorama/colorama-0.3.2.zip#md5=179cc70c4a61901ffd052576b598f11e
-#       2. Extract the downloaded zip file.
-#       3. Run the following commands in a windows terminal to install colorama:
-#           python setup.py build
-#           python setup.py install
-#
-# TODO add configurations:
-#      * consider option to configure problem type for automatic selection based on the day of the week
-#      * enable/disable negative numbers
-#        if enabled, random number generation should be between (-max, max) as opposed to the normal (0, max)
-#      * enable/disable remainders for division problems
-# TODO consider adding parameters to override various configurations:
-#      * how many math questions to perform (override configuration)
-#      * others as needed
-# TODO add learning functionality:
-#      first need to implement database of problem history
-#      if a question has been answered correctly many times it should be omitted
-#      if too many questions are omitted then the maximum range value for the type of problem should be increased
-# TODO add commands:
-#       * help command to display a list of available commands and what they do
-
 
 import platform
 import random
@@ -226,7 +202,6 @@ class BasicMath:
                 continue
             
             # Avoid decimal results/remainders
-            # TODO consider adding configuration to enable remainders and provide answer as NrN (e.g. 5/3 = 1r2)
             if float( lhs / rhs ) != float( lhs ) / float( rhs ):
                 continue
                 
