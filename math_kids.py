@@ -76,14 +76,17 @@ class BasicMath:
         self.problem_list = []
         
         # Setup/add various math problem types
-        # TODO only setup enabled operators
-        self.prob_add( BasicMath.MathType( BasicMath.add_func, BasicMath.add_gen_numbers, BasicMath.add_hint, "+", cfg_max_int_add ) )
+        if cfg_add_enable:
+            self.prob_add( BasicMath.MathType( BasicMath.add_func, BasicMath.add_gen_numbers, BasicMath.add_hint, "+", cfg_max_int_add ) )
 
-        self.prob_add( BasicMath.MathType( BasicMath.sub_func, BasicMath.sub_gen_numbers, BasicMath.sub_hint, "-", cfg_max_int_subtract ) )
+        if cfg_subtract_enable:
+            self.prob_add( BasicMath.MathType( BasicMath.sub_func, BasicMath.sub_gen_numbers, BasicMath.sub_hint, "-", cfg_max_int_subtract ) )
         
-        self.prob_add( BasicMath.MathType( BasicMath.mul_func, BasicMath.mul_gen_numbers, BasicMath.mul_hint, "*", cfg_max_int_multiply ) )
+        if cfg_multiply_enable:
+            self.prob_add( BasicMath.MathType( BasicMath.mul_func, BasicMath.mul_gen_numbers, BasicMath.mul_hint, "*", cfg_max_int_multiply ) )
         
-        self.prob_add( BasicMath.MathType( BasicMath.div_func, BasicMath.div_gen_numbers, BasicMath.div_hint, "/", cfg_max_int_divide ) )
+        if cfg_divide_enable:
+            self.prob_add( BasicMath.MathType( BasicMath.div_func, BasicMath.div_gen_numbers, BasicMath.div_hint, "/", cfg_max_int_divide ) )
         
         
     def prob_add( self, problem ):
@@ -407,14 +410,14 @@ if __name__ == "__main__":
         # Read the config file
         config.read( config_file_path )
         cfg_number_of_problems = int( config.get( 'DEFAULT', 'number_of_problems' ) )
-        cfg_add_enable = bool( config.get( 'DEFAULT', 'add_enable' ) )
-        cfg_subtract_enable = bool( config.get( 'DEFAULT', 'subtract_enable' ) )
-        cfg_multiply_enable = bool( config.get( 'DEFAULT', 'multiply_enable' ) )
-        cfg_divide_enable = bool( config.get( 'DEFAULT', 'divide_enable' ) )
-        cfg_max_int_add = int( config.get( 'DEFAULT', 'max_int_add' ) )
-        cfg_max_int_subtract = int( config.get( 'DEFAULT', 'max_int_subtract' ) )
-        cfg_max_int_multiply = int( config.get( 'DEFAULT', 'max_int_multiply' ) )
-        cfg_max_int_divide = int( config.get( 'DEFAULT', 'max_int_divide' ) )
+        cfg_add_enable         = 'True' == config.get( 'DEFAULT', 'add_enable' )
+        cfg_subtract_enable    = 'True' == config.get( 'DEFAULT', 'subtract_enable' )
+        cfg_multiply_enable    = 'True' == config.get( 'DEFAULT', 'multiply_enable' )
+        cfg_divide_enable      = 'True' == config.get( 'DEFAULT', 'divide_enable' )
+        cfg_max_int_add        = int( config.get( 'DEFAULT', 'max_int_add' ) )
+        cfg_max_int_subtract   = int( config.get( 'DEFAULT', 'max_int_subtract' ) )
+        cfg_max_int_multiply   = int( config.get( 'DEFAULT', 'max_int_multiply' ) )
+        cfg_max_int_divide     = int( config.get( 'DEFAULT', 'max_int_divide' ) )
     
     # Set log file name name and path
     log_file_path = username_dir + "/" + log_filename_gen()
